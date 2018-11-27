@@ -33,26 +33,26 @@ export default class LoginForm extends Component {
 		signup:false,
 	};
 	componentDidMount() {
-		let userToken=AsyncStorage.getItem('authUser');
-		fetch('http://www.merimandi.co.in:3025/api/test/user',{
-			method: 'GET',
-			headers: {
-				'authToken':userToken
-			}
-		}).then((response)=>{
-			if(response.status==403){
-				this.setState({authUser:null});
-				AsyncStorage.setItem('authUser', null);
-				ToastAndroid.show('Invalid Token, Please login again.', ToastAndroid.LONG);
-			}else if(response.status==500){
-				this.setState({authUser:null});
-				AsyncStorage.setItem('authUser', null);
-				ToastAndroid.show('500 Internal Server Error', ToastAndroid.LONG);
-			}else{
-				this.setState({authUser:userToken});
-			}
+		AsyncStorage.getItem('authUser').then((userToken)=>{
+			fetch('http://www.merimandi.co.in:3025/api/test/user',{
+				method: 'GET',
+				headers: {
+					'authToken':userToken
+				}
+			}).then((response)=>{
+				if(response.status==403){
+					this.setState({authUser:null});
+					AsyncStorage.setItem('authUser', null);
+					ToastAndroid.show('Invalid Token, Please login again.', ToastAndroid.LONG);
+				}else if(response.status==500){
+					this.setState({authUser:null});
+					AsyncStorage.setItem('authUser', null);
+					ToastAndroid.show('500 Internal Server Error', ToastAndroid.LONG);
+				}else{
+					this.setState({authUser:userToken});
+				}
+			});
 		});
-		
 	}
 				
 	
@@ -94,12 +94,18 @@ export default class LoginForm extends Component {
 		}).then((response)=>{
 			console.log(response);
 			if(response.status==200){
-				this.setState({loading:false, authUser});
-				AsyncStorage.setItem('authUser', JSON.stringify(response.accessToken));
+				return response.json();
 			}else if (response.status==404){
-				ToastAndroid.show('User Not Found!',ToastAndroid.LONG)
+				ToastAndroid.show('User Not Found!',ToastAndroid.LONG);
+				return false;
 			}else if (response.status==401){
-				ToastAndroid.show('Invalid Username Or Password!',ToastAndroid.LONG)
+				ToastAndroid.show('Invalid Username Or Password!',ToastAndroid.LONG);
+				return false;
+			}
+		}).then((response)=>{
+			if(response){
+				this.setState({loading:false, authUser: response.accessToken});
+				AsyncStorage.setItem('authUser', response.accessToken);
 			}
 		}).catch((error) => {
 			console.log(error);
