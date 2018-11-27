@@ -16,7 +16,7 @@ module.exports = function(app) {
 	
 	app.get('/api/auth/admin', [authJwt.verifyToken, authJwt.isAdmin], controller.adminBoard);
 
-	
+	app.post('/api/auth/refreshToken',controller.refreshToken);
 
 	
 }	

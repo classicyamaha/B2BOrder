@@ -154,3 +154,26 @@ exports.mainProducts = (req,res) => {
 		});
 	
 }
+exports.refreshToken = (req, res) => {
+	console.log("Refresh Token");
+	
+	User.findOne({
+		where: {
+			username: req.body.username
+		}
+	}).then(user => {
+		if (!user) {
+			return res.status(404).send('User Not Found.');
+		}
+
+		
+		var token = jwt.sign({ id: user.id }, config.secret, {
+		  expiresIn: 86400 
+		});
+		
+		res.status(200).send({ auth: true, accessToken: token });
+		
+	}).catch(err => {
+		res.status(500).send('Error -> ' + err);
+	});
+}

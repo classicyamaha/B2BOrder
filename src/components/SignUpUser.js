@@ -14,7 +14,8 @@ import {
 	Alert,
 	AsyncStorage,
 	ToastAndroid,
-	StatusBar
+    StatusBar,
+    Icon
 } from 'react-native';
 import {Picker} from 'native-base';
 import * as firebase from 'firebase';
@@ -71,6 +72,7 @@ export default class SignUpUser extends Component {
             }).then((response)=>{
                 if(response.status==200){
                     ToastAndroid.show('User Registered Successfully!',ToastAndroid.LONG)
+                    AsyncStorage.setItem('username',username)
                     this.setState({signedUp:true})
                 }else if (response.status==400){
                     ToastAndroid.show('Username or Email already taken!',ToastAndroid.LONG)
@@ -111,6 +113,7 @@ export default class SignUpUser extends Component {
      backgroundColor="rgba(30, 139, 195, 1)"
      barStyle="light-content"
    />
+        
         <View style={styles.loginContainer}>
         <Text style={styles.TextStyle}>Customer Orders</Text>
         <Text style={{fontSize:16, color:'black'}}>Sign Up as Business</Text></View>

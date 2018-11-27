@@ -5,7 +5,7 @@ const Role = db.role;
 const User = db.user;
 
 verifyToken = (req, res, next) => {
-	let token = req.headers['authToken'];
+	let token = req.body.authToken;
   
 	if (!token){
 		return res.status(403).send({ 

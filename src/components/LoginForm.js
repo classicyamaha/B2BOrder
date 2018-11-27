@@ -16,11 +16,13 @@ import {
 	ToastAndroid,
 	StatusBar
 } from 'react-native';
-import * as firebase from 'firebase';
 import SignUpUser from './SignUpUser';
 import ScreenNavigator from './ScreenNavigator';
+		
 
 export default class LoginForm extends Component {
+
+		
 	
 	state = {
 		username: '',
@@ -28,15 +30,33 @@ export default class LoginForm extends Component {
 		loading: false,
 		error: '',
 		authUser: null,
-		signup:false
+		signup:false,
 	};
 	componentDidMount() {
+		let userToken=AsyncStorage.getItem('authUser');
+		fetch('http://www.merimandi.co.in:3025/api/test/user',{
+			method: 'GET',
+			headers: {
+				'authToken':userToken
+			}
+		}).then((response)=>{
+			if(response.status==403){
+				this.setState({authUser:null});
+				AsyncStorage.setItem('authUser', null);
+				ToastAndroid.show('Invalid Token, Please login again.', ToastAndroid.LONG);
+			}else if(response.status==500){
+				this.setState({authUser:null});
+				AsyncStorage.setItem('authUser', null);
+				ToastAndroid.show('500 Internal Server Error', ToastAndroid.LONG);
+			}else{
+				this.setState({authUser:userToken});
+			}
+		});
 		
-		//Get saved user if already there
-		AsyncStorage.getItem('authUser').then(v => (v ? this.setState({
-			authUser: JSON.parse(v)
-		}) : null));
-
+	}
+				
+	
+/*		
 		//Save user if auth successful
 		firebase.auth().onAuthStateChanged(authUser => {
 			authUser
@@ -50,9 +70,8 @@ export default class LoginForm extends Component {
 			if (authUser) {
 				AsyncStorage.setItem('authUser', JSON.stringify(authUser));
 			}
-		});
+		});*/
 		
-	}
 
 	onPressSignIn() {
 		const {
@@ -62,6 +81,8 @@ export default class LoginForm extends Component {
 		this.setState({
 			loading: true
 		})
+	
+		
 		let formData = '{"username":"'+username+'","password":"'+password+'"}';
 		fetch('http://www.merimandi.co.in:3025/api/auth/signin',{
 			method: 'POST',
@@ -71,8 +92,9 @@ export default class LoginForm extends Component {
 			},
 			body: formData
 		}).then((response)=>{
+			console.log(response);
 			if(response.status==200){
-				this.setState({loading:false});
+				this.setState({loading:false, authUser});
 				AsyncStorage.setItem('authUser', JSON.stringify(response.accessToken));
 			}else if (response.status==404){
 				ToastAndroid.show('User Not Found!',ToastAndroid.LONG)
