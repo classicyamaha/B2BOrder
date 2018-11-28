@@ -19,7 +19,7 @@ import {
 import SignUpUser from './SignUpUser';
 import ScreenNavigator from './ScreenNavigator';
 		
-
+/*console.disableYellowBox = true;*/
 export default class LoginForm extends Component {
 
 		
@@ -32,17 +32,17 @@ export default class LoginForm extends Component {
 		authUser: null,
 		signup:false,
 	};
-	componentDidMount() {
+	componentWillMount() {
 		AsyncStorage.getItem('authUser').then((userToken)=>{
 			fetch('http://www.merimandi.co.in:3025/api/test/user',{
 				method: 'GET',
 				headers: {
-					'authToken':userToken
+					'x-access-token':userToken
 				}
 			}).then((response)=>{
 				if(response.status==403){
 					this.setState({authUser:null});
-					AsyncStorage.setItem('authUser', null);
+					AsyncStorages.setItem('authUser', null);
 					ToastAndroid.show('Invalid Token, Please login again.', ToastAndroid.LONG);
 				}else if(response.status==500){
 					this.setState({authUser:null});
@@ -96,9 +96,15 @@ export default class LoginForm extends Component {
 			if(response.status==200){
 				return response.json();
 			}else if (response.status==404){
+				this.setState({
+					loading: false
+				})
 				ToastAndroid.show('User Not Found!',ToastAndroid.LONG);
 				return false;
 			}else if (response.status==401){
+				this.setState({
+					loading: false
+				})
 				ToastAndroid.show('Invalid Username Or Password!',ToastAndroid.LONG);
 				return false;
 			}
@@ -214,7 +220,6 @@ const styles = StyleSheet.create({
 		backgroundColor: 'rgba(82, 179, 217, 1)',
 		marginBottom: 20,
 		paddingHorizontal: 10,
-		color: 'rgba(36, 37, 42, 1)'
 	},
 	loginContainer: {
 		padding: 20

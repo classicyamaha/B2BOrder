@@ -35,7 +35,6 @@ import {
 
 } from 'native-base';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import firebase from 'firebase';
 const window = Dimensions.get('window');
 
 
@@ -108,7 +107,7 @@ export default class DynamicList extends Component {
 			authLevel:''
 		};
 	}
-	getauthLevel(){
+/*getauthLevel(){
 		
 		
 		let authUserID= firebase.auth().currentUser.email	
@@ -131,24 +130,10 @@ export default class DynamicList extends Component {
 			
 	
 		});
-	}
+	}*/
 	componentWillMount() {
 
-		let that = this;
-		that.getauthLevel();
-		firebase.database().ref('orders/').on('value', function(snapshot) {
-			let data = snapshot.val();
-			if (data == null) {
-				that.setState({
-					num: 0
-				})
-			} else {
-				let num = Object.keys(snapshot.val()).length;
-				that.setState({
-					num: num
-				});
-			}
-		});
+		
 	}
 
 	componentDidMount() {
@@ -190,21 +175,18 @@ export default class DynamicList extends Component {
 		var totalAmount = Math.round(this.props.total,3);
 		var today = new Date();
 		var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + '-' + today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
-		var mytable = "<html><body><h1>Procurement Report - Dated = " + date + "</h1><table cellpadding=\"5\" cellspacing=\"5\"><thead><td>Item Name</td><td>Item Quantity</td><td>Item Rate</td><td>Total Amount</td><td>Market Rate</td><td>Comments</td></thead><tbody>";
+		var mytable = "<html><body><h1>Order Report - Dated = " + date + "</h1><table cellpadding=\"5\" cellspacing=\"5\"><thead><td>Item Name</td><td>Item Quantity</td></thead><tbody>";
 		for (var i = 0; i < data.length; i++) {
 			mytable += "<tr>";
 			mytable += "<td>" + data[i].selected + "</td>";
 			mytable += "<td>" + data[i].weight + "</td>";
-			mytable += "<td>" + data[i].rate + "</td>";
-			mytable += "<td>" + data[i].amount + "</td>";
-			mytable += "<td>" + data[i].marketrate + "</td>";
-			mytable += "<td>" + data[i].comments + "</td>";
+
 			mytable += "<tr>";
 		}
-		mytable += "<td></td><td></td><td> Total Amount: Rs. "+totalAmount+"</td><tr></tbody></table></body></html>";
+		mytable += "<td></td><td></td><td> Total Items: "+totalAmount+"</td><tr></tbody></table></body></html>";
 		let options = {
 			html: mytable,
-			fileName: 'ProcureReport' + date,
+			fileName: 'OrderReport' + date,
 			directory: 'docs'
 		};
 
@@ -232,7 +214,7 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
 						</Button>
 					</Left>
 					<Body>
-						<Title>Procure List</Title>
+						<Title>Order List</Title>
 					</Body>
          		 <Right />
 				</Header>
@@ -242,20 +224,13 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
 					}
 				}>
 					<View style={styles.addPanel}>
-					<Text style={{paddingBottom:5}}>Following list is editabe, you can use 'Add to Sheets' for final submission.</Text>
-					<Right><Text style={{paddingBottom:20, fontSize:22}}>Total: Rs. {this.props.total}</Text>
+					<Text style={{paddingBottom:5}}>Following list is editabe, you can use 'Confirm Order' for final submission.</Text>
+					<Right><Text style={{paddingBottom:20, fontSize:22}}>Total Item:  {this.props.total}</Text>
 				</Right>
 						<Button block danger 
-							onPress={()=> 
-							ActionSheet.show({
-								options:actionOptions,
-								title:'Choose Procurement Type'},
-							buttonIndex => {
-										this.addData(buttonIndex);
-									  }
-								
-							)}>
-							<Text style={styles.addButtonText}>Add to Sheets</Text>
+							onPress={()=> this.addData(0)}>
+
+							<Text style={styles.addButtonText}>Confirm Order</Text>
 						</Button> 
 					</View>
 					<ListView
@@ -301,10 +276,10 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
 			}
 		}>
 			<View style={styles.addPanel}>
-			<Text style={{paddingBottom:20}}>Your data has been added to the database, Please start a new session.</Text>
+			<Text style={{paddingBottom:20}}>Your order has reached us, We will take care of that.</Text>
 		
 				<Button disabled>
-					<Text style={styles.addButtonText}>Add to Sheets</Text>
+					<Text style={styles.addButtonText}>Confirm Order</Text>
 				</Button> 
 			</View>
 			</Content>
@@ -326,12 +301,9 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
                     <View style={styles.contact}>
                         <Text style={[styles.name]}>{rowData.selected}</Text>
 						<View style={{flexDirection:'row'}}>
-                        <Text style={styles.phone}>Weight : {rowData.weight} {rowData.unit} |</Text>
-						<Text style={styles.phone}> Amount: {rowData.amount} Rs. |</Text>
-						<Text style={styles.phone}> Rate: {rowData.rate} / {rowData.unit} </Text></View>
-						<View style={{flexDirection:'row'}}>
-						<Text style={styles.phone}>Comments: {rowData.comments} |</Text>
-						<Text style={styles.phone}> Market Rate: {rowData.marketrate} Rs. </Text></View>
+                        <Text style={styles.phone}>Weight : {rowData.weight} {rowData.unit} </Text>
+						<Text style={styles.phone}>Comments: {rowData.marketrate} </Text>
+						</View> 
                     </View>
                     <TouchableOpacity style={styles.deleteWrapper} onPress={() => this._deleteItem(rowData.uid,rowData.amount)}>
                         <Icon name='md-remove-circle' style={styles.deleteIcon}/>
@@ -501,11 +473,11 @@ const styles = StyleSheet.create({
 	name: {
 		fontWeight: "600",
 		color: '#212121',
-		fontSize: 14
+		fontSize: 16
 	},
 	phone: {
 		color: '#212121',
-		fontSize: 12
+		fontSize: 14
 	},
 	contact: {
 		width: window.width - 100,

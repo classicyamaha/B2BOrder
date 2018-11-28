@@ -8,19 +8,25 @@ import {createBottomTabNavigator} from 'react-navigation';
 import Order from './Order';
 import MainScreen from './mainScreen';
 import Icon from 'react-native-vector-icons/Ionicons'; 
+export default class ScreenNavigator extends Component
+{
+  render(){
+    return <MainScreen/>
+  }
+}
 
-
+/*
 export default createBottomTabNavigator({
     MainScreen:{
         screen: MainScreen,
         navigationOptions:{
-            tabBarLabel: 'Procure',
+            tabBarLabel: 'Orders',
             tabBarIcon:({tintColor})=>(<Icon name='ios-compass' 
             color={tintColor} size={24}/>)}},
     Order:{
         screen: Order,
         navigationOptions:{
-            tabBarLabel: 'Cash Flow',
+            tabBarLabel: 'Rates',
             tabBarIcon:({tintColor})=>(<Icon name='md-cash' 
             color={tintColor} size={24}/>)}},
     
@@ -36,5 +42,5 @@ export default createBottomTabNavigator({
       elevation:5
     }
   }
-});
+});*/
 

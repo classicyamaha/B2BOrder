@@ -61,7 +61,7 @@ export default class SignUpUser extends Component {
             password,
             email,
         }=this.state;
-        let formData = '{"bname":"'+bname+'","username":"'+username+'","password":"'+password+'","email":"'+email+'","roles":["user"]}';
+        let formData = '{"name":"'+bname+'","username":"'+username+'","password":"'+password+'","email":"'+email+'","roles":["user"]}';
             fetch('http://www.merimandi.co.in:3025/api/auth/signup',{
                 method: 'POST',
                 headers: {
@@ -72,7 +72,7 @@ export default class SignUpUser extends Component {
             }).then((response)=>{
                 if(response.status==200){
                     ToastAndroid.show('User Registered Successfully!',ToastAndroid.LONG)
-                    AsyncStorage.setItem('username',username)
+                    AsyncStorage.setItem('bname',bname)
                     this.setState({signedUp:true})
                 }else if (response.status==400){
                     ToastAndroid.show('Username or Email already taken!',ToastAndroid.LONG)

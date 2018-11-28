@@ -9,7 +9,7 @@ import {
 	ToastAndroid,
 	Picker,
 	AsyncStorage,
-	Keyboard
+	Keyboard,
 } from 'react-native';
 import ListShow from './ListShow';
 import Order from './Order';
@@ -33,6 +33,8 @@ import {
 
 } from 'native-base';
 import * as firebase from 'firebase';
+import LoginForm from './LoginForm';
+
 export default class MainScreen extends Component {
 
 	constructor(props) {
@@ -56,8 +58,8 @@ export default class MainScreen extends Component {
 			allData:[],
 			unit:'kgs',
 			CommentsList:[],
-			authLevel:'',
-			authUser:''
+			loggedOut:false,
+			bname:''
 		};
 
 	}
@@ -114,6 +116,8 @@ export default class MainScreen extends Component {
 	  }
 
 	componentWillMount() {
+		
+	
 		/*this.getauthLevel();*/
 		/*if(this.state.authLevel=='admin'){*/
 		this.getData();
@@ -135,7 +139,7 @@ export default class MainScreen extends Component {
 			weight,
 			selected,
 			rate,
-			marketrate,
+			bname,
 			comments,
 			unit
 		} = this.state;
@@ -145,11 +149,10 @@ export default class MainScreen extends Component {
 				weight: weight,
 				selected: selected,
 				rate: rate,
-				marketrate: marketrate,
-				comments:comments,
+				comments:bname,
 				uid: key,
 				unit:unit,
-				UserID: firebase.auth().currentUser.email
+				marketrate:comments
 			});
 			return prevState;
 		});
@@ -164,7 +167,7 @@ export default class MainScreen extends Component {
 		ToastAndroid.show('Updated', ToastAndroid.SHORT)
 		Keyboard.dismiss();
 	}
-	deleteListData(rowToDelete, amount) {
+	deleteListData(rowToDelete, num) {
 		let {
 			totalAmt
 		} = this.state
@@ -173,7 +176,7 @@ export default class MainScreen extends Component {
 				if (dataname.uid !== rowToDelete) {
 					return dataname;
 				} else {
-					prevState.totalAmt = prevState.totalAmt - parseFloat(amount);
+					prevState.totalAmt = prevState.totalAmt - parseFloat(num);
 				}
 			});
 			return prevState;
@@ -190,9 +193,11 @@ export default class MainScreen extends Component {
 			weight,
 			rate,
 			selected,
-			totalAmt
+			totalAmt,
+			num,loggedOut
 		} = this.state;
-
+		this.setState({num:num++});
+/*
 		if (amount == '' && weight != '' && rate != '') {
 			let result = parseFloat(weight) * rate;
 			result = result.toFixed(2);
@@ -211,14 +216,15 @@ export default class MainScreen extends Component {
 			rate = ""
 		} else {
 			return Alert.alert('Error', 'Please check the data');
-		}
-		totalAmt = totalAmt + parseFloat(amount)
+		}*/
+		rate=parseFloat(amount/weight);
+		totalAmt = num
 		this.setState({
 			totalAmt
 		});
-		console.log(totalAmt);
+		console.log(totalAmt)
 		this.setState({
-				amount,
+				amount:1,
 				weight,
 				rate
 			},
@@ -226,11 +232,9 @@ export default class MainScreen extends Component {
 			
 	}
 	logout() {
-		firebase.auth().signOut().then(function() {
-			// Sign-out successful.
-		}, function(error) {
-			Alert.alert('Error', 'Temporary Error, 400');
-		});
+		this.setState({loggedOut:true})
+		AsyncStorage.setItem('authUser',null)
+		
 	}
 	newSession() {
 		this.setState({
@@ -272,21 +276,7 @@ export default class MainScreen extends Component {
 						borderColor: "#dadada"
 					}
 				}>
-					<Item>
-						<Icon type="FontAwesome" name="money" />
-						<Input
-							onChangeText={amount => this.setState({ amount })}
-							value={amount}
-							keyboardType="numeric"
-							placeholder="Amount" />
-					</Item>
-					<Item>
-						<Icon name="ios-pricetag" />
-						<Input
-							onChangeText={rate => this.setState({ rate })}
-							value={rate}
-							keyboardType="numeric" placeholder="Rate" />
-					</Item>
+					
 					<Item style={{flexDirection:'row'}}>
 						<Icon type="MaterialCommunityIcons" name="weight-kilogram" />
 						<Input
@@ -309,31 +299,11 @@ export default class MainScreen extends Component {
 					</Item>
 					</Item>
 					<Item>
-						<Icon name="ios-pricetag" />
-							<Input
-							onChangeText={marketrate => this.setState({ marketrate })}
-							value={marketrate}
-							placeholder="Market Rate" />
-					</Item>
-					<Item>
-						
-						<Icon  type='Ionicons' name="md-people" />
-						<Picker
-						style={{ height: 50, width: 340 }}
-						mode='dropdown'
-						placeholder='Choose from List..'
-                        selectedValue={this.state.comments}
-                        onValueChange={(itemValue, itemIndex) => this.setState({ comments: itemValue })} >
-                        {this.state.CommentsList.map((item, key) => {
-                        return (<Picker.Item label={item.item} value={item.value} key={key} />)})}
-                        </Picker>
-					</Item>
-					<Item>
-						<Icon name="ios-code-working" />
+						<Icon type="MaterialIcons" name="comment" />
 							<Input
 							onChangeText={comments => this.setState({ comments })}
 							value={comments}
-							placeholder="If Others please specify" />
+							placeholder="Remarks" />
 					</Item>
 
 				</Content>
@@ -344,7 +314,7 @@ export default class MainScreen extends Component {
 			<CardItem>
 		<Content>
 					<Button block info onPress={() => this.validator()}>
-						<Text>Procure Item</Text>
+						<Text>Add to Order</Text>
 					</Button>
 				</Content>
 				
@@ -374,8 +344,10 @@ export default class MainScreen extends Component {
 			back={()=>this.setState({vList:false})} 
 			delete={(rowToDelete,amount)=>this.deleteListData(rowToDelete,amount)} 
 			total={this.state.totalAmt}
-			newSession={()=>this.setState({pList:[],totalAmt:0})}
+			newSession={()=>this.setState({pList:[],totalAmt:0,num:0})}
 			 />;
+		} else if (this.state.loggedOut){ 
+			return <LoginForm/>
 		} else {
 
 			const {
@@ -393,11 +365,11 @@ export default class MainScreen extends Component {
 androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 67, 1)"}}>
 				
 					<Body>
-						<Title>Procure Service</Title>
+						<Title>Customer Order</Title>
 						<Subtitle>Meri Mandi</Subtitle>
 					</Body>
 					<Right>
-						<Button hasText transparent onPress={this.logout}>
+						<Button hasText transparent onPress={this.logout()}>
 							<Text> <Icon style={{color:'white', fontSize:16}} type="Entypo" name="log-out"/> Logout</Text>
 						</Button>
 					</Right>
