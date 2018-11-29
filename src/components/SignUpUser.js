@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import {Picker} from 'native-base';
 //import * as firebase from 'firebase';
+import {BackHandler} from 'react-native';
 
 export default class SignUpUser extends Component {
 	state = {
@@ -50,10 +51,15 @@ export default class SignUpUser extends Component {
         this.getCommentsData();
 		
 		this.timerComments = setInterval(()=> this.getCommentsData(), 100000);
+		BackHandler.addEventListener('hardwareBackPress', () => {
+			this.props.onSignup();
+			return true;
+		 });
 
 	 }
 	 componentWillUnmount(){
 		 clearInterval(this.timerComments);
+		 BackHandler.removeEventListener('hardwareBackPress', () => {});
 	 }
 	onPressSignUp(){
         const {
