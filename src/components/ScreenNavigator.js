@@ -11,7 +11,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 export default class ScreenNavigator extends Component
 {
   render(){
-    return <MainScreen/>
+    return <MainScreen/>;
   }
 }
 

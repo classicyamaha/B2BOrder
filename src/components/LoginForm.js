@@ -14,7 +14,8 @@ import {
 	Alert,
 	AsyncStorage,
 	ToastAndroid,
-	StatusBar
+	StatusBar,
+	Modal
 } from 'react-native';
 import SignUpUser from './SignUpUser';
 import ScreenNavigator from './ScreenNavigator';
@@ -32,14 +33,17 @@ export default class LoginForm extends Component {
 		authUser: null,
 		signup:false,
 	};
-	componentWillMount() {
-		AsyncStorage.getItem('authUser').then((userToken)=>{
+	componentDidMount() {
+	
+		let userToken= AsyncStorage.getItem('authUser')
+		console.log(userToken)
 			fetch('http://www.merimandi.co.in:3025/api/test/user',{
 				method: 'GET',
 				headers: {
 					'x-access-token':userToken
 				}
 			}).then((response)=>{
+				console.log(response)
 				if(response.status==403){
 					this.setState({authUser:null});
 					AsyncStorages.setItem('authUser', null);
@@ -48,11 +52,10 @@ export default class LoginForm extends Component {
 					this.setState({authUser:null});
 					AsyncStorage.setItem('authUser', null);
 					ToastAndroid.show('500 Internal Server Error', ToastAndroid.LONG);
-				}else{
+				}else if(userToken){
 					this.setState({authUser:userToken});
 				}
 			});
-		});
 	}
 				
 	
@@ -73,7 +76,7 @@ export default class LoginForm extends Component {
 		});*/
 		
 
-	onPressSignIn() {
+	onPressSignIn=()=> {
 		const {
 			username,
 			password
@@ -110,8 +113,10 @@ export default class LoginForm extends Component {
 			}
 		}).then((response)=>{
 			if(response){
-				this.setState({loading:false, authUser: response.accessToken});
+				
+				this.setState({loading:false,authUser: response.accessToken});
 				AsyncStorage.setItem('authUser', response.accessToken);
+				
 			}
 		}).catch((error) => {
 			console.log(error);
@@ -148,10 +153,11 @@ export default class LoginForm extends Component {
 		if (this.state.loading) {
 			return <View style={styles.logoContainer}>
           <ActivityIndicator style={styles.loading} size="large"/>
-        </View>;
+        </View>
+		;
 		}
-		if (this.state.authUser) {
-			return <ScreenNavigator />;
+	    if (this.state.authUser) {
+			return <MainScreen />;
 		} else if(this.state.signup){
 			return <SignUpUser/>;
 		}else {
@@ -159,7 +165,7 @@ export default class LoginForm extends Component {
         <View style={styles.logoContainer}>
 		<StatusBar
      backgroundColor="rgba(30, 139, 195, 1)"
-     barStyle="light-content"
+     barStyle="light-content"g
    />
         <Image 
         style={styles.logoStyle}
