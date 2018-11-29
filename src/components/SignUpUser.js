@@ -18,8 +18,7 @@ import {
     Icon
 } from 'react-native';
 import {Picker} from 'native-base';
-import * as firebase from 'firebase';
-import LoginForm from './LoginForm';
+//import * as firebase from 'firebase';
 
 export default class SignUpUser extends Component {
 	state = {
@@ -31,8 +30,7 @@ export default class SignUpUser extends Component {
         bname:'',
         CommentsList:[],
         email:'',
-        formData:[],
-        signedUp:false
+        formData:[]
     };
     validate = (text) => {
         console.log(text);
@@ -53,7 +51,10 @@ export default class SignUpUser extends Component {
 		
 		this.timerComments = setInterval(()=> this.getCommentsData(), 100000);
 
-    }
+	 }
+	 componentWillUnmount(){
+		 clearInterval(this.timerComments);
+	 }
 	onPressSignUp(){
         const {
             bname,
@@ -73,7 +74,7 @@ export default class SignUpUser extends Component {
                 if(response.status==200){
                     ToastAndroid.show('User Registered Successfully!',ToastAndroid.LONG)
                     AsyncStorage.setItem('bname',bname)
-                    this.setState({signedUp:true})
+                    this.props.onSignup();
                 }else if (response.status==400){
                     ToastAndroid.show('Username or Email already taken!',ToastAndroid.LONG)
                 }else if (response.status==500){
@@ -104,9 +105,6 @@ export default class SignUpUser extends Component {
           <ActivityIndicator style={styles.loading} size="large"/>
         </View>;
 		}
-		if (this.state.signedUp) {
-			return <LoginForm />;
-		} else {
 			return <KeyboardAvoidingView behavior="padding" style={styles.container} enabled>
        
 		<StatusBar
@@ -145,7 +143,7 @@ export default class SignUpUser extends Component {
               onChangeText={(text) => this.validate(text)}/>
               <Text style={styles.BasicTextStyle}>Business Name:</Text> 
               <Picker
-                        style={{ height: 40, width: 320 , 
+								style={{ height: 40, width: "100%" , 
                             backgroundColor:'rgba(82, 179, 217, 1)',
                         marginBottom:20}}
 						mode='dropdown'
@@ -160,7 +158,6 @@ export default class SignUpUser extends Component {
               
 			  </View>
       </KeyboardAvoidingView>;
-		}
 	}
 }
 

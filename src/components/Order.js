@@ -33,7 +33,7 @@ import {
 	DatePicker
 
 } from 'native-base';
-import * as firebase from 'firebase';
+//import * as firebase from 'firebase';
 export default class Order extends Component {
 
 	constructor(props) {
