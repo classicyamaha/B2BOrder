@@ -34,28 +34,35 @@ export default class LoginForm extends Component {
 		signup:false,
 	};
 	componentDidMount() {
-	
-		let userToken= AsyncStorage.getItem('authUser')
-		console.log(userToken)
-			fetch('http://www.merimandi.co.in:3025/api/test/user',{
-				method: 'GET',
-				headers: {
-					'x-access-token':userToken
-				}
-			}).then((response)=>{
-				console.log(response)
-				if(response.status==403){
-					this.setState({authUser:null});
-					AsyncStorages.setItem('authUser', null);
-					ToastAndroid.show('Invalid Token, Please login again.', ToastAndroid.LONG);
-				}else if(response.status==500){
-					this.setState({authUser:null});
-					AsyncStorage.setItem('authUser', null);
-					ToastAndroid.show('500 Internal Server Error', ToastAndroid.LONG);
-				}else if(userToken){
-					this.setState({authUser:userToken});
-				}
-			});
+		let that = this;
+		AsyncStorage.getItem('authUser').then((userToken)=>{
+			if(userToken){
+				fetch('http://www.merimandi.co.in:3025/api/test/user',{
+					method: 'GET',
+					headers: {
+						'x-access-token':userToken
+					}
+				}).then((response)=>{
+					if(response.status==403){
+						AsyncStorage.setItem('authUser', null);
+						ToastAndroid.show('Invalid Token, Please login again.', ToastAndroid.LONG);
+						return false;
+					}else if(response.status==500){
+						AsyncStorage.setItem('authUser', null);
+						ToastAndroid.show('500 Internal Server Error', ToastAndroid.LONG);
+						return false;
+					}else if(userToken){
+						return response.json()
+					}
+				}).then((response)=>{
+					if(response){
+						that.setState({authUser:userToken})
+					}else{
+						that.setState({authUser:null});
+					}
+				});
+			}
+		}).catch(console.error);
 	}
 				
 	
@@ -149,6 +156,14 @@ export default class LoginForm extends Component {
 		this.setState({signup:true});
 	}
 
+	onPressLogout(){
+		AsyncStorage.removeItem('authUser').then(()=>this.setState({authUser:null}));
+	}
+
+	onSignup(){
+		this.setState({signup:false});
+	}
+
 	render() {
 		if (this.state.loading) {
 			return <View style={styles.logoContainer}>
@@ -157,9 +172,9 @@ export default class LoginForm extends Component {
 		;
 		}
 	    if (this.state.authUser) {
-			return <MainScreen />;
+			return <MainScreen onPressLogout={this.onPressLogout.bind(this)}/>;
 		} else if(this.state.signup){
-			return <SignUpUser/>;
+			return <SignUpUser onSignup={this.onSignup.bind(this)}/>;
 		}else {
 			return <KeyboardAvoidingView behavior="padding" style={styles.container} enabled>
         <View style={styles.logoContainer}>

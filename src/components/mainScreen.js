@@ -32,8 +32,7 @@ import {
 	Subtitle
 
 } from 'native-base';
-import * as firebase from 'firebase';
-import LoginForm from './LoginForm';
+//import * as firebase from 'firebase';
 
 export default class MainScreen extends Component {
 
@@ -58,7 +57,6 @@ export default class MainScreen extends Component {
 			allData:[],
 			unit:'kgs',
 			CommentsList:[],
-			loggedOut:false,
 			bname:''
 		};
 
@@ -130,6 +128,10 @@ export default class MainScreen extends Component {
 		this.timerComments = setInterval(()=> this.getCommentsData(), 100000);
 		
 	}
+	componentWillUnmount(){
+		clearInterval(this.timer);
+		clearInterval(this.timerComments);
+	}
 
 	addtoList() {
 		let key = Math.random().toString(36).substr(2);
@@ -194,7 +196,7 @@ export default class MainScreen extends Component {
 			rate,
 			selected,
 			totalAmt,
-			num,loggedOut
+			num
 		} = this.state;
 		this.setState({num:num++});
 /*
@@ -231,11 +233,7 @@ export default class MainScreen extends Component {
 			() => this.addtoList());
 			
 	}
-	logout() {
-		this.setState({loggedOut:true})
-		AsyncStorage.setItem('authUser',null)
-		
-	}
+
 	newSession() {
 		this.setState({
 			pList: []
@@ -346,8 +344,6 @@ export default class MainScreen extends Component {
 			total={this.state.totalAmt}
 			newSession={()=>this.setState({pList:[],totalAmt:0,num:0})}
 			 />;
-		} else if (this.state.loggedOut){ 
-			return <LoginForm/>
 		} else {
 
 			const {
@@ -369,7 +365,7 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
 						<Subtitle>Meri Mandi</Subtitle>
 					</Body>
 					<Right>
-						<Button hasText transparent onPress={this.logout()}>
+						<Button hasText transparent onPress={this.props.onPressLogout}>
 							<Text> <Icon style={{color:'white', fontSize:16}} type="Entypo" name="log-out"/> Logout</Text>
 						</Button>
 					</Right>

@@ -35,7 +35,7 @@ import {
 
 } from 'native-base';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import firebase from 'firebase';
+//import firebase from 'firebase';
 const window = Dimensions.get('window');
 
 
