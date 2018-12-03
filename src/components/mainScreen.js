@@ -57,48 +57,26 @@ export default class MainScreen extends Component {
 			allData:[],
 			unit:'kgs',
 			CommentsList:[],
-			bname:''
+			bname:'',
+			userid:''
 		};
 
 	}
 	
-
-
-	getauthLevel(){
-		let authUserID= firebase.auth().currentUser.email	
-		  result=this.getUserLevelData(authUserID)
-		  if(result=='admin'){
-		  this.setState({authLevel:'admin'});
-		  }else if(result=='operator'){
-		  this.setState({authLevel:'operator'});
-		  }
+	componentDidMount(){
+		let that = this;
+		AsyncStorage.getItem('bname').then((bname)=>{
+			that.setState({bname})
+		})
+		AsyncStorage.getItem('userid').then((userid)=>{
+			that.setState({userid})
+		})
 	}
-	getUserLevelData(userID){
-	fetch('https://rawgit.com/classicyamaha/mbooksdata/master/userAuthLevel.json')
-	.then(response => response.json())
-    .then((data) => {
-       for(var i = 0; i < data.length; i++)
-		{
-  			if(data[i].email == userID)
-				  return data[i].auth
-				  break
-				  
-		}
 
-	});
-}
-	
-	getUserSpecificData(){
-		
-	fetch('https://rawgit.com/classicyamaha/mbooksdata/master/userprocuredata%20.json')
-	.then(response => response.json())
-	.then((data) => {
-	  this.setState({allData:data})});
 
-  }
 	getData(){
 		
-	  fetch('https://rawgit.com/classicyamaha/mbooksdata/master/procuredata.json')
+	  fetch('https://rawgit.com/classicyamaha/mbooksdata/master/orderprocuredata.json')
       .then(response => response.json())
       .then((data) => {
         this.setState({allData:data})});
@@ -143,18 +121,21 @@ export default class MainScreen extends Component {
 			rate,
 			bname,
 			comments,
-			unit
+			unit,
+			userid,
+			totalAmt
 		} = this.state;
 		this.setState((prevState) => {
 			prevState.pList.push({
-				amount: amount,
+				amount: '1',
 				weight: weight,
 				selected: selected,
 				rate: rate,
 				comments:bname,
 				uid: key,
 				unit:unit,
-				marketrate:comments
+				marketrate:comments,
+				UserID:userid,
 			});
 			return prevState;
 		});
@@ -178,7 +159,7 @@ export default class MainScreen extends Component {
 				if (dataname.uid !== rowToDelete) {
 					return dataname;
 				} else {
-					prevState.totalAmt = prevState.totalAmt - parseFloat(num);
+					prevState.totalAmt = prevState.totalAmt - 1;
 				}
 			});
 			return prevState;
@@ -191,14 +172,29 @@ export default class MainScreen extends Component {
 
 	validator() {
 		let {
-			amount,
+
 			weight,
 			rate,
-			selected,
-			totalAmt,
-			num
+			totalAmt
+
 		} = this.state;
-		this.setState({num:num++});
+		this.setState({totalAmt:totalAmt++});
+
+		if(weight !=''){
+			rate=parseFloat(1/weight);
+			this.setState({
+				totalAmt
+			});
+			console.log(totalAmt)
+			this.setState({
+					weight,
+					rate
+				},
+				() => this.addtoList());
+			
+		}else {
+			ToastAndroid.show('Error! Fill in required quantity!', ToastAndroid.LONG)
+		}
 /*
 		if (amount == '' && weight != '' && rate != '') {
 			let result = parseFloat(weight) * rate;
@@ -219,18 +215,9 @@ export default class MainScreen extends Component {
 		} else {
 			return Alert.alert('Error', 'Please check the data');
 		}*/
-		rate=parseFloat(amount/weight);
-		totalAmt = num
-		this.setState({
-			totalAmt
-		});
-		console.log(totalAmt)
-		this.setState({
-				amount:1,
-				weight,
-				rate
-			},
-			() => this.addtoList());
+		
+		
+		
 			
 	}
 
@@ -340,9 +327,9 @@ export default class MainScreen extends Component {
 			authLevel={this.state.authLevel}
 			list={this.state.pList} 
 			back={()=>this.setState({vList:false})} 
-			delete={(rowToDelete,amount)=>this.deleteListData(rowToDelete,amount)} 
+			delete={(rowToDelete,totalAmt)=>this.deleteListData(rowToDelete,totalAmt)} 
 			total={this.state.totalAmt}
-			newSession={()=>this.setState({pList:[],totalAmt:0,num:0})}
+			newSession={()=>this.setState({pList:[],totalAmt:0})}
 			 />;
 		} else {
 
@@ -358,7 +345,7 @@ export default class MainScreen extends Component {
 			return (
 				<Container>
 				<Header iosStatusbar="light-content"
-androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 67, 1)"}}>
+androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 130, 76, 1)"}}>
 				
 					<Body>
 						<Title>Customer Order</Title>

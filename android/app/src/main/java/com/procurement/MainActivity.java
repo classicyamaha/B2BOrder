@@ -1,4 +1,4 @@
-package com.procurement;
+package com.customerorder;
 
 import com.facebook.react.ReactActivity;
 
@@ -10,7 +10,7 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "procurement";
+        return "customerorder";
     }
     @Override
     public void invokeDefaultOnBackPressed() {

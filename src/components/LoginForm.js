@@ -17,6 +17,7 @@ import {
 	StatusBar,
 	Modal
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import SignUpUser from './SignUpUser';
 import ScreenNavigator from './ScreenNavigator';
 		
@@ -35,6 +36,7 @@ export default class LoginForm extends Component {
 	};
 	componentDidMount() {
 		let that = this;
+		
 		AsyncStorage.getItem('authUser').then((userToken)=>{
 			if(userToken){
 				fetch('http://www.merimandi.co.in:3025/api/test/user',{
@@ -42,6 +44,7 @@ export default class LoginForm extends Component {
 					headers: {
 						'x-access-token':userToken
 					}
+					
 				}).then((response)=>{
 					if(response.status==403){
 						AsyncStorage.setItem('authUser', null);
@@ -56,13 +59,19 @@ export default class LoginForm extends Component {
 					}
 				}).then((response)=>{
 					if(response){
+						console.log(response)
+						AsyncStorage.setItem('bname',response.user.name);
+						AsyncStorage.setItem('userid',response.user.email);
 						that.setState({authUser:userToken})
+
 					}else{
 						that.setState({authUser:null});
 					}
 				});
 			}
+			console.log(userToken)
 		}).catch(console.error);
+		
 	}
 				
 	
@@ -123,9 +132,13 @@ export default class LoginForm extends Component {
 				
 				this.setState({loading:false,authUser: response.accessToken});
 				AsyncStorage.setItem('authUser', response.accessToken);
+				AsyncStorage.setItem('bname',response.user.name);
+				AsyncStorage.setItem('userid',response.user.email); 
+				 
 				
+			
 			}
-		}).catch((error) => {
+		}).catch((error) => { 
 			console.log(error);
 		});
 		 
@@ -166,30 +179,28 @@ export default class LoginForm extends Component {
 
 	render() {
 		if (this.state.loading) {
-			return <View style={styles.logoContainer}>
+			return  <View style={styles.logoContainer}>
           <ActivityIndicator style={styles.loading} size="large"/>
-        </View>
-		;
+        </View>;
 		}
 	    if (this.state.authUser) {
 			return <MainScreen onPressLogout={this.onPressLogout.bind(this)}/>;
 		} else if(this.state.signup){
 			return <SignUpUser onSignup={this.onSignup.bind(this)}/>;
 		}else {
-			return <KeyboardAvoidingView behavior="padding" style={styles.container} enabled>
+			return <KeyboardAwareScrollView style={styles.container}>
         <View style={styles.logoContainer}>
 		<StatusBar
-     backgroundColor="rgba(30, 139, 195, 1)"
-     barStyle="light-content"g
+     backgroundColor="rgba(42, 187, 155, 1)"
+     barStyle="light-content"
    />
         <Image 
         style={styles.logoStyle}
         source={require('../images/logo.png')}/>
-        <Text style={styles.TextStyle}>Customer Orders</Text>
         </View>
         <View style={styles.loginContainer}>
               <TextInput placeholder="username"
-              placeholderTextColor='#000'
+              placeholderTextColor='#FFF'
               autoCapitalize="none"
               autoCorrect={false}
               onSubmitEditing={()=>this.passwordInput.focus()}
@@ -198,18 +209,19 @@ export default class LoginForm extends Component {
               onChangeText={username => this.setState({username})}/>
               <TextInput 
               placeholder="password"
-              placeholderTextColor='#000'
+              placeholderTextColor='#FFF'
               secureTextEntry
               ref={(input)=> this.passwordInput=input}
               style={styles.TextInputStyle}
               value={this.state.password}
               onChangeText={password => this.setState({password})}/>
+			  
               <TouchableOpacity style={styles.ButtonStyle} onPress={()=> this.onPressSignIn()}>
               <Text style={styles.ButtonTextStyle}>Log In</Text></TouchableOpacity>
 			  <TouchableOpacity  onPress={()=> this.onPressSignUp()}><Text style={{fontSize:15,color:'white', fontWeight:'400'}}>New? Sign Up</Text></TouchableOpacity>
-			  <Text style={{color:'black', textAlign:'center'}}>Version: 1.1.0, Sanaur Rahman</Text>
-            </View>
-      </KeyboardAvoidingView>;
+			  </View>
+			
+      </KeyboardAwareScrollView>;
 		}
 	}
 }
@@ -230,7 +242,7 @@ const styles = StyleSheet.create({
 		fontWeight: '700'
 	},
 	ButtonStyle: {
-		backgroundColor: 'rgba(1, 50, 67, 1)',
+		backgroundColor: 'rgba(4, 147, 114, 1)',
 		paddingVertical: 15,
 		marginBottom: 10,
 		paddingHorizontal: 10,
@@ -238,16 +250,18 @@ const styles = StyleSheet.create({
 	},
 	TextInputStyle: {
 		height: 40,
-		backgroundColor: 'rgba(82, 179, 217, 1)',
+		backgroundColor: 'rgba(22, 160, 133, 1)',
 		marginBottom: 20,
 		paddingHorizontal: 10,
+		borderRadius:10,
+		color:'#FFF'
 	},
 	loginContainer: {
 		padding: 20
 	},
 	container: {
 		flex: 1,
-		backgroundColor: 'rgba(30, 139, 195, 1)',
+		backgroundColor: 'rgba(42, 187, 155, 1)',
 	},
 	logoContainer: {
 		justifyContent: 'center',
@@ -256,6 +270,7 @@ const styles = StyleSheet.create({
 		height: 250
 	},
 	logoStyle: {
+		paddingBottom:25,
 		justifyContent: 'center',
 		alignItems: 'center',
 		width: 250,

@@ -131,12 +131,16 @@ export default class DynamicList extends Component {
 	
 		});
 	}*/
-	componentWillMount() {
+	componentWillUnmount() {
 
-		
+		BackHandler.removeEventListener('hardwareBackPress', () => {});
 	}
 
 	componentDidMount() {
+		BackHandler.addEventListener('hardwareBackPress', () => {
+			this.props.back();
+			return true;
+		 });
 
 		InteractionManager.runAfterInteractions(() => {
 			this._loadData()
@@ -166,10 +170,7 @@ export default class DynamicList extends Component {
 			dataSource: ds
 		});
 		console.log(this._data);
-		this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-			this.props.navigation.navigate('MainScreen') 
-			return true;
-		  });
+		
 	}
 	async createPDF(data) {
 		var totalAmount = Math.round(this.props.total,3);
@@ -207,7 +208,7 @@ export default class DynamicList extends Component {
 
 				<Container>
 				<Header iosStatusbar="light-content"
-androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 67, 1)"}}>
+androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 130, 76, 1)"}}>
 					<Left>
 						<Button transparent onPress={()=>this.props.back()}>
 							<Icon name='arrow-back' />
@@ -259,14 +260,14 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
 			return (
 				<Container>
 		<Header iosStatusbar="light-content"
-androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 67, 1)"}}>
+androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 130, 76, 1)"}}>
 			<Left>
 				<Button transparent onPress={()=>this.props.back()}>
 					<Icon name='arrow-back' />
 				</Button>
 			</Left>
 			<Body>
-				<Title>Procure List</Title>
+				<Title>Order List</Title>
 			</Body>
 		  <Right />
 		</Header>
@@ -305,7 +306,7 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
 						<Text style={styles.phone}>Comments: {rowData.marketrate} </Text>
 						</View> 
                     </View>
-                    <TouchableOpacity style={styles.deleteWrapper} onPress={() => this._deleteItem(rowData.uid,rowData.amount)}>
+                    <TouchableOpacity style={styles.deleteWrapper} onPress={() => this._deleteItem(rowData.uid,rowData.totalAmt)}>
                         <Icon name='md-remove-circle' style={styles.deleteIcon}/>
                     </TouchableOpacity>
                 </View>

@@ -98,7 +98,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.procurement"
+        applicationId "com.customerorder"
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1

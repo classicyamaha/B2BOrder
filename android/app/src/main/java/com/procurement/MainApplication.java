@@ -1,4 +1,4 @@
-package com.procurement;
+package com.customerorder;
 
 import android.app.Application;
 

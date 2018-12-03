@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1065488977040:android:2cd1583c2c5a4319",
         "android_client_info": {
-          "package_name": "com.procurement"
+          "package_name": "com.customerorder"
         }
       },
       "oauth_client": [
