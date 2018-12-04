@@ -27,11 +27,8 @@ import {
 	Body,
 	Icon,
 	Text,
-	FooterTab,
-	Footer,
-	Badge,
-	Toast,
-	ActionSheet
+	List,
+	ListItem
 
 } from 'native-base';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
@@ -196,12 +193,6 @@ export default class DynamicList extends Component {
 	}
 
 	render() {
-		let actionOptions
-		
-			actionOptions=[{text:'Order Details', icon:'ios-cart', iconColor:'red'},
-			{text:'Procurement Details', icon:'aperture', iconColor:'blue'},
-			{text:'LeftOver Inventory', icon:'ios-filing', iconColor:'black'},
-			{text:'Customer Bills', icon:'analytics', iconColor:'purple'}];
 		
 		if (this.state.sheet) {
 			return (
@@ -277,12 +268,21 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 			}
 		}>
 			<View style={styles.addPanel}>
-			<Text style={{paddingBottom:20}}>Your order has reached us, We will take care of that.</Text>
-		
-				<Button disabled>
-					<Text style={styles.addButtonText}>Confirm Order</Text>
-				</Button> 
+			<Text style={{paddingBottom:20}}>Your order has reached us, here is your summary</Text> 
+			<Text style={{fontSize:30}}>Order Summary</Text>
 			</View>
+			
+			<List dataArray={this._data}
+            		renderRow={(item) =>
+              <ListItem>
+				<Icon style={{paddingRight:10, color:'green'}} name="ios-checkmark-circle-outline" />
+				<View style={{flexDirection:'column'}}><Left>
+                <Text style={{fontSize:18, alignContent:'flex-start'}}>{item.selected}  </Text>
+				<Text style={{fontSize:18, alignContent:'flex-start'}}>{item.weight} {item.unit}</Text>
+				</Left>
+				</View>
+              </ListItem>
+            }></List>
 			</Content>
 			
 			</Container>
@@ -301,13 +301,13 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 
                     <View style={styles.contact}>
                         <Text style={[styles.name]}>{rowData.selected}</Text>
+						<Text style={styles.phone}>Weight : {rowData.weight} {rowData.unit} </Text>
 						<View style={{flexDirection:'row'}}>
-                        <Text style={styles.phone}>Weight : {rowData.weight} {rowData.unit} </Text>
-						<Text style={styles.phone}>Comments: {rowData.marketrate} </Text>
+						<Text style={styles.phone}>Remarks: {rowData.marketrate} </Text>
 						</View> 
                     </View>
                     <TouchableOpacity style={styles.deleteWrapper} onPress={() => this._deleteItem(rowData.uid,rowData.totalAmt)}>
-                        <Icon name='md-remove-circle' style={styles.deleteIcon}/>
+                        <Icon type="MaterialIcons" name='delete-forever' style={styles.deleteIcon}/>
                     </TouchableOpacity>
                 </View>
             </DynamicListRow>
@@ -332,6 +332,27 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 		this.setState({
 			sheet: false
 		});
+		const data =this._data
+		let id = Math.floor(500 + Math.random() * 9000);
+		for (var i = 0; i < data.length; i++) {
+		let orderData='{"amount":"'+data[i].amount+'","weight":"'+data[i].weight+'","selected":"'+data[i].selected+'","rate":'+data[i].rate+',"comments":"'+data[i].comments+'","uid":"'+data[i].uid+'","unit":"'+data[i].unit+'","marketrate":"'+data[i].marketrate+'","UserID":"'+data[i].UserID+'","timestamp":"'+data[i].timestamp+'","orderid":"'+id+'"}'
+		  console.log(orderData) 
+		fetch('http://www.merimandi.co.in:3025/api/test/addorder',{
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: orderData
+            }).then((response)=>{
+               
+                if(response.status==200){
+                    ToastAndroid.show('Updated!',ToastAndroid.LONG)
+				}
+            }).catch((error) => {
+                console.log(error);
+            });
+		}
 		this.props.newSession();
 			
 		}

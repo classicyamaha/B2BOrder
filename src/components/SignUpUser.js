@@ -184,7 +184,7 @@ export default class SignUpUser extends Component {
               placeholderTextColor='#FFF'
               autoCapitalize="none"
               autoCorrect={false}
-              onSubmitEditing={()=>this.passwordInput.focus()}
+              onSubmitEditing={()=>this.emailInput.focus()}
               style={styles.TextInputStyle}
               value={this.state.username}
               onChangeText={username => this.setState({username})}/>
@@ -194,6 +194,8 @@ export default class SignUpUser extends Component {
               placeholderTextColor='#FFF'
               style={styles.TextInputStyle}
               value={this.state.email}
+              ref={(input)=> this.emailInput=input}
+              onSubmitEditing={()=>this.passwordInput.focus()}
               onChangeText={email => this.setState({email})}/>
               <Text style={styles.BasicTextStyle}>Password:</Text> 
               <TextInput 

@@ -125,6 +125,9 @@ export default class MainScreen extends Component {
 			userid,
 			totalAmt
 		} = this.state;
+		var today = new Date();
+		var timestamp = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate() + '-' + today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
+	
 		this.setState((prevState) => {
 			prevState.pList.push({
 				amount: '1',
@@ -136,6 +139,7 @@ export default class MainScreen extends Component {
 				unit:unit,
 				marketrate:comments,
 				UserID:userid,
+				timestamp:timestamp
 			});
 			return prevState;
 		});
@@ -180,7 +184,7 @@ export default class MainScreen extends Component {
 		} = this.state;
 		this.setState({totalAmt:totalAmt++});
 
-		if(weight !=''){
+		if(weight >0){
 			rate=parseFloat(1/weight);
 			this.setState({
 				totalAmt
@@ -219,6 +223,14 @@ export default class MainScreen extends Component {
 		
 		
 			
+	}
+	incrementItem=(action)=>{
+		const {weight}=this.state;
+		if(action=="add"){
+			this.setState(prevState => ({ weight: prevState.weight + 1 }));
+		}else if(action=="sub"){
+			this.setState(prevState => ({ weight: prevState.weight - 1 }));
+		}
 	}
 
 	newSession() {
@@ -268,8 +280,8 @@ export default class MainScreen extends Component {
 							onChangeText={weight => this.setState({ weight })}
 							value={weight}
 							keyboardType="numeric" placeholder="Weight" />
-						<Item>
 						
+						<Item>	
             			<Picker
 							  selectedValue={unit}
 							  mode='dropdown'
@@ -280,7 +292,7 @@ export default class MainScreen extends Component {
 							<Picker.Item label="Pieces" value="pcs" />
 
 						</Picker>
-          			
+						
 					</Item>
 					</Item>
 					<Item>
