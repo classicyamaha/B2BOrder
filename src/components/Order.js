@@ -14,7 +14,7 @@ import {
 	ToastAndroid,
 	AsyncStorage,
 	Alert,
-	Modal
+	ScrollView
 } from 'react-native';
 import {
 	Container,
@@ -38,6 +38,7 @@ import {
 	handleBackButton,
 	removeBackButtonHandler
 } from './backButton';
+import Modal from "react-native-modal";
 //import * as firebase from 'firebase';
 
 const window = Dimensions.get('window');
@@ -237,10 +238,13 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 						renderRow={this._renderRow.bind(this)}
 					/>
 					<Modal visible={this.state.modalVisible}
-						animationType='fade' onRequestClose={()=>
+							backdropColor='black'
+							animationIn='slideInUp'	
+							onBackdropPress={()=>that.setState({modalVisible:false})}
+							 onRequestClose={()=>
 							that.setState({modalVisible:false})}>
-						<View>
-						<Text>Order ID: {this.state.modalData[0] && this.state.modalData[0].orderid}</Text>
+						<ScrollView style={{backgroundColor:'rgba(144, 198, 149, 1)',borderColor:'black', borderWidth:1.0, borderRadius:12}}>
+						<View style={{alignItems:'center', borderBottomColor:'black',borderBottomWidth:1}}><Text style={{fontSize:25}}>Order ID: {this.state.modalData[0] && this.state.modalData[0].orderid}</Text></View>
 						<List dataArray={this.state.modalData}
 										renderRow={(item) =>
 								<ListItem>
@@ -252,7 +256,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 								</View>
 								</ListItem>
 								}></List>
-						</View>
+						</ScrollView>
 					</Modal>
 		  </Content>
 			</Container>
