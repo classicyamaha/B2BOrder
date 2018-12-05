@@ -184,7 +184,7 @@ export default class LoginForm extends Component {
         </View>;
 		}
 	    if (this.state.authUser) {
-			return <ScreenNavigator onPressLogout={this.onPressLogout.bind(this)}/>;
+			return <ScreenNavigator screenProps={{onPressLogout: this.onPressLogout.bind(this)}}/>;
 		} else if(this.state.signup){
 			return <SignUpUser onSignup={this.onSignup.bind(this)}/>;
 		}else {

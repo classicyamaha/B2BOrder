@@ -364,7 +364,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 						<Subtitle>Meri Mandi</Subtitle>
 					</Body>
 					<Right>
-						<Button hasText transparent onPress={this.props.onPressLogout}>
+						<Button hasText transparent onPress={this.props.screenProps.onPressLogout}>
 							<Text> <Icon style={{color:'white', fontSize:16}} type="Entypo" name="log-out"/> Logout</Text>
 						</Button>
 					</Right>
