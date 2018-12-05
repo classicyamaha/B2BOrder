@@ -69,7 +69,7 @@ class DynamicListRow extends Component {
 			this.resetHeight()
 		}
 	}
-	componentWillUnmount(){
+	componentWillUnmount() {
 		removeBackButtonHandler();
 	}
 	onRemoving(callback) {

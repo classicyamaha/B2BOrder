@@ -42,8 +42,6 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 //import firebase from 'firebase';
 const window = Dimensions.get('window');
 
-
-
 class DynamicListRow extends Component {
 
 	_defaultHeightValue = 60;
@@ -60,7 +58,6 @@ class DynamicListRow extends Component {
 			duration: this._defaultTransition
 		}).start()
 
-		
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -108,33 +105,34 @@ export default class DynamicList extends Component {
 			rowToDelete: null,
 			sheet: true,
 			num: 0,
-			clicked:0,
-			authLevel:''
+			clicked: 0,
+			authLevel: ''
 		};
 	}
-	getauthLevel(){
-		
-		
-		let authUserID= firebase.auth().currentUser.email	
-		  result=this.getUserLevelData(authUserID)
-		  if(result=='admin'){
-		  this.setState({authLevel:'admin'});
-		  }else if(result=='operator'){
-		  this.setState({authLevel:'operator'});
-		  }
+	getauthLevel() {
+
+		let authUserID = firebase.auth().currentUser.email
+		result = this.getUserLevelData(authUserID)
+		if (result == 'admin') {
+			this.setState({
+				authLevel: 'admin'
+			});
+		} else if (result == 'operator') {
+			this.setState({
+				authLevel: 'operator'
+			});
+		}
 	}
-	getUserLevelData(userID){
+	getUserLevelData(userID) {
 		fetch('https://rawgit.com/classicyamaha/mbooksdata/master/userAuthLevel.json')
-		.then(response => response.json())
-		.then((data) => {
-		   for(var i = 0; i <= data.length; i++)
-			{
-				  if(data[i].email == userID)
-					  return data[i].auth
-			}
-			
-	
-		});
+			.then(response => response.json())
+			.then((data) => {
+				for (var i = 0; i <= data.length; i++) {
+					if (data[i].email == userID)
+						return data[i].auth
+				}
+
+			});
 	}
 	componentWillMount() {
 
@@ -161,7 +159,7 @@ export default class DynamicList extends Component {
 			this._loadData()
 		});
 	}
-	componentWillUnmount(){
+	componentWillUnmount() {
 		removeBackButtonHandler();
 	}
 
@@ -189,12 +187,12 @@ export default class DynamicList extends Component {
 		});
 		console.log(this._data);
 		handleBackButton(() => {
-			this.props.navigation.navigate('MainScreen') 
+			this.props.navigation.navigate('MainScreen')
 			return true;
-		  });
+		});
 	}
 	async createPDF(data) {
-		var totalAmount = Math.round(this.props.total,3);
+		var totalAmount = Math.round(this.props.total, 3);
 		var today = new Date();
 		var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + '-' + today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
 		var mytable = "<html><body><h1>Transaction Report - Dated = " + date + "</h1><table cellpadding=\"5\" cellspacing=\"5\"><thead><td>Bill Date</td><td>Customer Name</td><td>Payment Status</td><td>Payment Mode</td><td>Bill Amount</td><td>Paid Amount</td><td>Pending Amount</td><td>Remarks</td></thead><tbody>";
@@ -206,11 +204,11 @@ export default class DynamicList extends Component {
 			mytable += "<td>" + data[i].paymentMode + "</td>";
 			mytable += "<td>" + data[i].billamount + "</td>";
 			mytable += "<td>" + data[i].payAmount + "</td>";
-            mytable += "<td>" + data[i].pendingAmount + "</td>";
-            mytable += "<td>" + data[i].remarks + "</td>";
+			mytable += "<td>" + data[i].pendingAmount + "</td>";
+			mytable += "<td>" + data[i].remarks + "</td>";
 			mytable += "<tr>";
 		}
-		mytable += "<td></td><td></td><td> Total Bill Amount: Rs. "+totalAmount+"</td><tr></tbody></table></body></html>";
+		mytable += "<td></td><td></td><td> Total Bill Amount: Rs. " + totalAmount + "</td><tr></tbody></table></body></html>";
 		let options = {
 			html: mytable,
 			fileName: 'TransactionReport' + date,
@@ -223,13 +221,33 @@ export default class DynamicList extends Component {
 
 	render() {
 		let actionOptions
-		
-			actionOptions=[{text:'Order Details', icon:'ios-cart', iconColor:'red'},
-			{text:'Procurement Details', icon:'aperture', iconColor:'blue'},
-			{text:'Cash Flow Management', icon:'ios-barcode', iconColor:'green'},
-			{text:'LeftOver Inventory', icon:'ios-filing', iconColor:'black'},
-			{text:'Customer Bills', icon:'analytics', iconColor:'purple'}];
-		
+
+		actionOptions = [{
+				text: 'Order Details',
+				icon: 'ios-cart',
+				iconColor: 'red'
+			},
+			{
+				text: 'Procurement Details',
+				icon: 'aperture',
+				iconColor: 'blue'
+			},
+			{
+				text: 'Cash Flow Management',
+				icon: 'ios-barcode',
+				iconColor: 'green'
+			},
+			{
+				text: 'LeftOver Inventory',
+				icon: 'ios-filing',
+				iconColor: 'black'
+			},
+			{
+				text: 'Customer Bills',
+				icon: 'analytics',
+				iconColor: 'purple'
+			}];
+
 		if (this.state.sheet) {
 			return (
 
@@ -345,10 +363,9 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
             </DynamicListRow>
 		);
 	}
-	addData(){
-		
-	
-			var formData = new FormData();
+	addData() {
+
+		var formData = new FormData();
 		formData.append("values", JSON.stringify(this._data))
 		fetch('https://script.google.com/macros/s/AKfycbwP0uGZlsRpVqrEpXz36v8B_BVJAlwgUwWsoTYLImotXjrFxXoX/exec', {
 			mode: 'no-cors',
@@ -359,17 +376,15 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
 			body: formData
 		}).then(function(response) {
 
-			ToastAndroid.show('Updated'+ response, ToastAndroid.SHORT)
+			ToastAndroid.show('Updated' + response, ToastAndroid.SHORT)
 		}).catch(console.log);
 		this.createPDF(this._data);
 		this.setState({
 			sheet: false
 		});
 		this.props.newSession();
-		
-	}
 
-	
+	}
 
 	componentWillUpdate(nextProps, nextState) {
 		if (nextState.rowToDelete !== null) {
@@ -392,8 +407,7 @@ androidStatusBarColor='rgba(1, 50, 67, 1)' style={{backgroundColor:"rgba(1, 50, 
 		this.props.delete(id, billamount);
 	}
 
-	_onAfterRemovingElement() {
-	}
+	_onAfterRemovingElement() {}
 
 }
 
