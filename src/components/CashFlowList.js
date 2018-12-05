@@ -12,7 +12,6 @@ import {
 	Animated,
 	Dimensions,
 	ToastAndroid,
-	BackHandler,
 	Platform,
 	Alert
 } from 'react-native';
@@ -34,6 +33,11 @@ import {
 	ActionSheet
 
 } from 'native-base';
+
+import {
+	handleBackButton,
+	removeBackButtonHandler
+} from './backButton';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 //import firebase from 'firebase';
 const window = Dimensions.get('window');
@@ -157,6 +161,9 @@ export default class DynamicList extends Component {
 			this._loadData()
 		});
 	}
+	componentWillUnmount(){
+		removeBackButtonHandler();
+	}
 
 	_loadData(refresh) {
 		refresh && this.setState({
@@ -181,7 +188,7 @@ export default class DynamicList extends Component {
 			dataSource: ds
 		});
 		console.log(this._data);
-		this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+		handleBackButton(() => {
 			this.props.navigation.navigate('MainScreen') 
 			return true;
 		  });

@@ -12,7 +12,6 @@ import {
 	Animated,
 	Dimensions,
 	ToastAndroid,
-	BackHandler,
 	Platform,
 	Alert
 } from 'react-native';
@@ -31,6 +30,11 @@ import {
 	ListItem
 
 } from 'native-base';
+
+import {
+	handleBackButton,
+	removeBackButtonHandler
+} from './backButton';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 const window = Dimensions.get('window');
 
@@ -129,12 +133,11 @@ export default class DynamicList extends Component {
 		});
 	}*/
 	componentWillUnmount() {
-
-		BackHandler.removeEventListener('hardwareBackPress', () => {});
+		removeBackButtonHandler();
 	}
 
 	componentDidMount() {
-		BackHandler.addEventListener('hardwareBackPress', () => {
+		handleBackButton(() => {
 			this.props.back();
 			return true;
 		 });
