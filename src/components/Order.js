@@ -240,7 +240,8 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 					<Dialog visible={this.state.modalVisible}
 							title='Order Details'
 							animationType='slide'	
-							onTouchOutside={()=>that.setState({modalVisible:false})}>
+							onTouchOutside={()=>that.setState({modalVisible:false})}
+							onRequestClose={()=>that.setState({modalVisible:false})}>
 						<View>
 						<Text style={{fontSize:25}}>Order ID: {this.state.modalData[0] && this.state.modalData[0].orderid}</Text>
 						<List dataArray={this.state.modalData}
