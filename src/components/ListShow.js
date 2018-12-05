@@ -332,29 +332,21 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 			this.setState({
 				sheet: false
 			});
-			const data = this._data
-			let id = Math.floor(500 + Math.random() * 9000);
-			Alert.alert(JSON.stringify(data))
-			for (var i = 0; i < data.length; i++) {
-				let orderData = '{"amount":"' + data[i].amount + '","weight":"' + data[i].weight + '","selected":"' + data[i].selected + '","rate":' + data[i].rate + ',"comments":"' + data[i].comments + '","uid":"' + data[i].uid + '","unit":"' + data[i].unit + '","marketrate":"' + data[i].marketrate + '","UserID":"' + data[i].UserID + '","timestamp":"' + data[i].timestamp + '","orderid":"' + id + '"}'
-				console.log(orderData)
-				fetch('http://www.merimandi.co.in:3025/api/test/addorder', {
-					method: 'POST',
-					headers: {
-						'Accept': 'application/json',
-						'Content-Type': 'application/json'
-					},
-					body: orderData
-				}).then((response) => {
-
-					if (response.status == 200) {
-						ToastAndroid.show('Updated!', ToastAndroid.LONG)
-					}
-				}).catch((error) => {
-					console.log(error);
-				});
-			}
-			this.props.newSession();
+			fetch('http://www.merimandi.co.in:3025/api/test/addorder', {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({data:this._data})
+			}).then((response) => {
+				if (response.status == 200) {
+					this.props.newSession();
+					ToastAndroid.show('Updated!', ToastAndroid.LONG)
+				}
+			}).catch((error) => {
+				console.log(error);
+			});
 
 		} else if (buttonIndex == 1) {
 			var formData = new FormData();
