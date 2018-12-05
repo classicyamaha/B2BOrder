@@ -17,82 +17,84 @@ import {
 	StatusBar,
 	Modal
 } from 'react-native';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {
+	KeyboardAwareScrollView
+} from 'react-native-keyboard-aware-scroll-view';
 import SignUpUser from './SignUpUser';
 import ScreenNavigator from './ScreenNavigator';
-		
+
 /*console.disableYellowBox = true;*/
 export default class LoginForm extends Component {
 
-		
-	
 	state = {
 		username: '',
 		password: '',
 		loading: false,
 		error: '',
 		authUser: null,
-		signup:false,
+		signup: false,
 	};
 	componentDidMount() {
 		let that = this;
-		
-		AsyncStorage.getItem('authUser').then((userToken)=>{
-			if(userToken){
-				fetch('http://www.merimandi.co.in:3025/api/test/user',{
+
+		AsyncStorage.getItem('authUser').then((userToken) => {
+			if (userToken) {
+				fetch('http://www.merimandi.co.in:3025/api/test/user', {
 					method: 'GET',
 					headers: {
-						'x-access-token':userToken
+						'x-access-token': userToken
 					}
-					
-				}).then((response)=>{
-					if(response.status==403){
+
+				}).then((response) => {
+					if (response.status == 403) {
 						AsyncStorage.setItem('authUser', null);
 						ToastAndroid.show('Invalid Token, Please login again.', ToastAndroid.LONG);
 						return false;
-					}else if(response.status==500){
+					} else if (response.status == 500) {
 						AsyncStorage.setItem('authUser', null);
 						ToastAndroid.show('500 Internal Server Error', ToastAndroid.LONG);
 						return false;
-					}else if(userToken){
+					} else if (userToken) {
 						return response.json()
 					}
-				}).then((response)=>{
-					if(response){
+				}).then((response) => {
+					if (response) {
 						console.log(response)
-						AsyncStorage.setItem('bname',response.user.name);
-						AsyncStorage.setItem('userid',response.user.email);
-						that.setState({authUser:userToken})
+						AsyncStorage.setItem('bname', response.user.name);
+						AsyncStorage.setItem('userid', response.user.email);
+						that.setState({
+							authUser: userToken
+						})
 
-					}else{
-						that.setState({authUser:null});
+					} else {
+						that.setState({
+							authUser: null
+						});
 					}
 				});
 			}
 			console.log(userToken)
 		}).catch(console.error);
-		
-	}
-				
-	
-/*		
-		//Save user if auth successful
-		firebase.auth().onAuthStateChanged(authUser => {
-			authUser
-				?
-				this.setState({
-					authUser
-				}) :
-				this.setState({
-					authUser: null
-				});
-			if (authUser) {
-				AsyncStorage.setItem('authUser', JSON.stringify(authUser));
-			}
-		});*/
-		
 
-	onPressSignIn=()=> {
+	}
+
+	/*		
+			//Save user if auth successful
+			firebase.auth().onAuthStateChanged(authUser => {
+				authUser
+					?
+					this.setState({
+						authUser
+					}) :
+					this.setState({
+						authUser: null
+					});
+				if (authUser) {
+					AsyncStorage.setItem('authUser', JSON.stringify(authUser));
+				}
+			});*/
+
+	onPressSignIn = () => {
 		const {
 			username,
 			password
@@ -100,49 +102,48 @@ export default class LoginForm extends Component {
 		this.setState({
 			loading: true
 		})
-	
-		
-		let formData = '{"username":"'+username+'","password":"'+password+'"}';
-		fetch('http://www.merimandi.co.in:3025/api/auth/signin',{
+
+		let formData = '{"username":"' + username + '","password":"' + password + '"}';
+		fetch('http://www.merimandi.co.in:3025/api/auth/signin', {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json',
 				'Content-Type': 'application/json'
 			},
 			body: formData
-		}).then((response)=>{
+		}).then((response) => {
 			console.log(response);
-			if(response.status==200){
+			if (response.status == 200) {
 				return response.json();
-			}else if (response.status==404){
+			} else if (response.status == 404) {
 				this.setState({
 					loading: false
 				})
-				ToastAndroid.show('User Not Found!',ToastAndroid.LONG);
+				ToastAndroid.show('User Not Found!', ToastAndroid.LONG);
 				return false;
-			}else if (response.status==401){
+			} else if (response.status == 401) {
 				this.setState({
 					loading: false
 				})
-				ToastAndroid.show('Invalid Username Or Password!',ToastAndroid.LONG);
+				ToastAndroid.show('Invalid Username Or Password!', ToastAndroid.LONG);
 				return false;
 			}
-		}).then((response)=>{
-			if(response){
-				
-				this.setState({loading:false,authUser: response.accessToken});
+		}).then((response) => {
+			if (response) {
+
+				this.setState({
+					loading: false,
+					authUser: response.accessToken
+				});
 				AsyncStorage.setItem('authUser', response.accessToken);
-				AsyncStorage.setItem('bname',response.user.name);
-				AsyncStorage.setItem('userid',response.user.email); 
-				 
-				
-			
+				AsyncStorage.setItem('bname', response.user.name);
+				AsyncStorage.setItem('userid', response.user.email);
+
 			}
-		}).catch((error) => { 
+		}).catch((error) => {
 			console.log(error);
 		});
-		 
-		
+
 		/*
 		firebase.auth().signInWithEmailAndPassword(username, password).then(() => {
 			this.setState({
@@ -165,29 +166,35 @@ export default class LoginForm extends Component {
 			});
 		});*/
 	}
-	onPressSignUp(){
-		this.setState({signup:true});
+	onPressSignUp() {
+		this.setState({
+			signup: true
+		});
 	}
 
-	onPressLogout(){
-		AsyncStorage.removeItem('authUser').then(()=>this.setState({authUser:null}));
+	onPressLogout() {
+		AsyncStorage.removeItem('authUser').then(() => this.setState({
+			authUser: null
+		}));
 	}
 
-	onSignup(){
-		this.setState({signup:false});
+	onSignup() {
+		this.setState({
+			signup: false
+		});
 	}
 
 	render() {
 		if (this.state.loading) {
-			return  <View style={styles.logoContainer}>
+			return <View style={styles.logoContainer}>
           <ActivityIndicator style={styles.loading} size="large"/>
         </View>;
 		}
-	    if (this.state.authUser) {
-			return <ScreenNavigator onPressLogout={this.onPressLogout.bind(this)}/>;
-		} else if(this.state.signup){
+		if (this.state.authUser) {
+			return <ScreenNavigator screenProps={{onPressLogout: this.onPressLogout.bind(this)}}/>;
+		} else if (this.state.signup) {
 			return <SignUpUser onSignup={this.onSignup.bind(this)}/>;
-		}else {
+		} else {
 			return <KeyboardAwareScrollView style={styles.container}>
         <View style={styles.logoContainer}>
 		<StatusBar
@@ -235,7 +242,7 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		alignItems: 'center',
 		justifyContent: 'center'
-	  },
+	},
 	ButtonTextStyle: {
 		textAlign: 'center',
 		color: '#FFF',
@@ -253,8 +260,8 @@ const styles = StyleSheet.create({
 		backgroundColor: 'rgba(22, 160, 133, 1)',
 		marginBottom: 20,
 		paddingHorizontal: 10,
-		borderRadius:10,
-		color:'#FFF'
+		borderRadius: 10,
+		color: '#FFF'
 	},
 	loginContainer: {
 		padding: 20
@@ -268,10 +275,10 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		flexGrow: 1,
 		height: 250,
-		paddingBottom:25
+		paddingBottom: 25
 	},
 	logoStyle: {
-		
+
 		justifyContent: 'center',
 		alignItems: 'center',
 		width: 250,

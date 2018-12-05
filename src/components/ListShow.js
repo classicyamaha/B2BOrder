@@ -12,7 +12,6 @@ import {
 	Animated,
 	Dimensions,
 	ToastAndroid,
-	BackHandler,
 	Platform,
 	Alert
 } from 'react-native';
@@ -31,10 +30,13 @@ import {
 	ListItem
 
 } from 'native-base';
+
+import {
+	handleBackButton,
+	removeBackButtonHandler
+} from './backButton';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 const window = Dimensions.get('window');
-
-
 
 class DynamicListRow extends Component {
 
@@ -52,7 +54,6 @@ class DynamicListRow extends Component {
 			duration: this._defaultTransition
 		}).start()
 
-		
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -100,44 +101,43 @@ export default class DynamicList extends Component {
 			rowToDelete: null,
 			sheet: true,
 			num: 0,
-			clicked:0,
-			authLevel:''
+			clicked: 0,
+			authLevel: ''
 		};
 	}
-/*getauthLevel(){
-		
-		
-		let authUserID= firebase.auth().currentUser.email	
-		  result=this.getUserLevelData(authUserID)
-		  if(result=='admin'){
-		  this.setState({authLevel:'admin'});
-		  }else if(result=='operator'){
-		  this.setState({authLevel:'operator'});
-		  }
-	}
-	getUserLevelData(userID){
-		fetch('https://rawgit.com/classicyamaha/mbooksdata/master/userAuthLevel.json')
-		.then(response => response.json())
-		.then((data) => {
-		   for(var i = 0; i <= data.length; i++)
-			{
-				  if(data[i].email == userID)
-					  return data[i].auth
-			}
+	/*getauthLevel(){
 			
-	
-		});
-	}*/
+			
+			let authUserID= firebase.auth().currentUser.email	
+			  result=this.getUserLevelData(authUserID)
+			  if(result=='admin'){
+			  this.setState({authLevel:'admin'});
+			  }else if(result=='operator'){
+			  this.setState({authLevel:'operator'});
+			  }
+		}
+		getUserLevelData(userID){
+			fetch('https://rawgit.com/classicyamaha/mbooksdata/master/userAuthLevel.json')
+			.then(response => response.json())
+			.then((data) => {
+			   for(var i = 0; i <= data.length; i++)
+				{
+					  if(data[i].email == userID)
+						  return data[i].auth
+				}
+				
+		
+			});
+		}*/
 	componentWillUnmount() {
-
-		BackHandler.removeEventListener('hardwareBackPress', () => {});
+		removeBackButtonHandler();
 	}
 
 	componentDidMount() {
-		BackHandler.addEventListener('hardwareBackPress', () => {
+		handleBackButton(() => {
 			this.props.back();
 			return true;
-		 });
+		});
 
 		InteractionManager.runAfterInteractions(() => {
 			this._loadData()
@@ -167,10 +167,10 @@ export default class DynamicList extends Component {
 			dataSource: ds
 		});
 		console.log(this._data);
-		
+
 	}
 	async createPDF(data) {
-		var totalAmount = Math.round(this.props.total,3);
+		var totalAmount = Math.round(this.props.total, 3);
 		var today = new Date();
 		var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + '-' + today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
 		var mytable = "<html><body><h1>Order Report - Dated = " + date + "</h1><table cellpadding=\"5\" cellspacing=\"5\"><thead><td>Item Name</td><td>Item Quantity</td></thead><tbody>";
@@ -181,7 +181,7 @@ export default class DynamicList extends Component {
 
 			mytable += "<tr>";
 		}
-		mytable += "<td></td><td></td><td> Total Items: "+totalAmount+"</td><tr></tbody></table></body></html>";
+		mytable += "<td></td><td></td><td> Total Items: " + totalAmount + "</td><tr></tbody></table></body></html>";
 		let options = {
 			html: mytable,
 			fileName: 'OrderReport' + date,
@@ -193,7 +193,7 @@ export default class DynamicList extends Component {
 	}
 
 	render() {
-		
+
 		if (this.state.sheet) {
 			return (
 
@@ -313,112 +313,107 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
             </DynamicListRow>
 		);
 	}
-	addData(buttonIndex){
-		if(buttonIndex==0){
-		var formData = new FormData();
-		formData.append("values", JSON.stringify(this._data))
-		fetch('https://script.google.com/macros/s/AKfycbzH1s69Rx0ZgAbZfL2L27s9UH6KJR4oPwDsiq7cmDnAW_57IQKw/exec', {
-			mode: 'no-cors',
-			method: 'post',
-			headers: {
-				'Content-Type': 'multipart/form-data'
-			},
-			body: formData
-		}).then(function(response) {
-			
-			ToastAndroid.show('Updated ', ToastAndroid.SHORT)
-		}).catch(console.log);
-		this.createPDF(this._data);
-		this.setState({
-			sheet: false
-		});
-		const data =this._data
-		let id = Math.floor(500 + Math.random() * 9000);
-		for (var i = 0; i < data.length; i++) {
-		let orderData='{"amount":"'+data[i].amount+'","weight":"'+data[i].weight+'","selected":"'+data[i].selected+'","rate":'+data[i].rate+',"comments":"'+data[i].comments+'","uid":"'+data[i].uid+'","unit":"'+data[i].unit+'","marketrate":"'+data[i].marketrate+'","UserID":"'+data[i].UserID+'","timestamp":"'+data[i].timestamp+'","orderid":"'+id+'"}'
-		  console.log(orderData) 
-		fetch('http://www.merimandi.co.in:3025/api/test/addorder',{
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: orderData
-            }).then((response)=>{
-               
-                if(response.status==200){
-                    ToastAndroid.show('Updated!',ToastAndroid.LONG)
-				}
-            }).catch((error) => {
-                console.log(error);
-            });
-		}
-		this.props.newSession();
-			
-		}
-		else if(buttonIndex==1){
+	addData(buttonIndex) {
+		if (buttonIndex == 0) {
 			var formData = new FormData();
-		formData.append("values", JSON.stringify(this._data))
-		fetch('https://script.google.com/macros/s/AKfycbyaudxHGu0wkGqPmQRHkGBEHoTJI6-jAPFtERIihearDxsKCEc/exec', {
-			mode: 'no-cors',
-			method: 'post',
-			headers: {
-				'Content-Type': 'multipart/form-data'
-			},
-			body: formData
-		}).then(function(response) {
+			formData.append("values", JSON.stringify(this._data))
+			fetch('https://script.google.com/macros/s/AKfycbzH1s69Rx0ZgAbZfL2L27s9UH6KJR4oPwDsiq7cmDnAW_57IQKw/exec', {
+				mode: 'no-cors',
+				method: 'post',
+				headers: {
+					'Content-Type': 'multipart/form-data'
+				},
+				body: formData
+			}).then(function(response) {
 
-			ToastAndroid.show('Updated'+ response, ToastAndroid.SHORT)
-		}).catch(console.log);
-		this.createPDF(this._data);
-		this.setState({
-			sheet: false
-		});
-		this.props.newSession();
-		}
-		else if(buttonIndex==2){
+				ToastAndroid.show('Updated ', ToastAndroid.SHORT)
+			}).catch(console.log);
+			this.createPDF(this._data);
+			this.setState({
+				sheet: false
+			});
+			const data = this._data
+			let id = Math.floor(500 + Math.random() * 9000);
+			for (var i = 0; i < data.length; i++) {
+				let orderData = '{"amount":"' + data[i].amount + '","weight":"' + data[i].weight + '","selected":"' + data[i].selected + '","rate":' + data[i].rate + ',"comments":"' + data[i].comments + '","uid":"' + data[i].uid + '","unit":"' + data[i].unit + '","marketrate":"' + data[i].marketrate + '","UserID":"' + data[i].UserID + '","timestamp":"' + data[i].timestamp + '","orderid":"' + id + '"}'
+				console.log(orderData)
+				fetch('http://www.merimandi.co.in:3025/api/test/addorder', {
+					method: 'POST',
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: orderData
+				}).then((response) => {
+
+					if (response.status == 200) {
+						ToastAndroid.show('Updated!', ToastAndroid.LONG)
+					}
+				}).catch((error) => {
+					console.log(error);
+				});
+			}
+			this.props.newSession();
+
+		} else if (buttonIndex == 1) {
 			var formData = new FormData();
-		formData.append("values", JSON.stringify(this._data))
-		fetch('https://script.google.com/macros/s/AKfycbz34V4CxmqEiSXwvjB2A3u5Wmv6K0nlbwqcQtFLXHSPFiyRct4H/exec', {
-			mode: 'no-cors',
-			method: 'post',
-			headers: {
-				'Content-Type': 'multipart/form-data'
-			},
-			body: formData
-		}).then(function(response) {
+			formData.append("values", JSON.stringify(this._data))
+			fetch('https://script.google.com/macros/s/AKfycbyaudxHGu0wkGqPmQRHkGBEHoTJI6-jAPFtERIihearDxsKCEc/exec', {
+				mode: 'no-cors',
+				method: 'post',
+				headers: {
+					'Content-Type': 'multipart/form-data'
+				},
+				body: formData
+			}).then(function(response) {
 
-			ToastAndroid.show('Updated'+ response, ToastAndroid.SHORT)
-		}).catch(console.log);
-		this.createPDF(this._data);
-		this.setState({
-			sheet: false
-		});
-		this.props.newSession();
-		}
-		else if(buttonIndex==3){
+				ToastAndroid.show('Updated' + response, ToastAndroid.SHORT)
+			}).catch(console.log);
+			this.createPDF(this._data);
+			this.setState({
+				sheet: false
+			});
+			this.props.newSession();
+		} else if (buttonIndex == 2) {
 			var formData = new FormData();
-		formData.append("values", JSON.stringify(this._data))
-		fetch('https://script.google.com/macros/s/AKfycbz1nK4pdiVadO8GhOGLy7Z3OQJLzvHP1kd2nc59o4JL5XN9htgy/exec', {
-			mode: 'no-cors',
-			method: 'post',
-			headers: {
-				'Content-Type': 'multipart/form-data'
-			},
-			body: formData
-		}).then(function(response) {
+			formData.append("values", JSON.stringify(this._data))
+			fetch('https://script.google.com/macros/s/AKfycbz34V4CxmqEiSXwvjB2A3u5Wmv6K0nlbwqcQtFLXHSPFiyRct4H/exec', {
+				mode: 'no-cors',
+				method: 'post',
+				headers: {
+					'Content-Type': 'multipart/form-data'
+				},
+				body: formData
+			}).then(function(response) {
 
-			ToastAndroid.show('Updated'+ response, ToastAndroid.SHORT)
-		}).catch(console.log);
-		this.createPDF(this._data);
-		this.setState({
-			sheet: false
-		});
-		this.props.newSession();
+				ToastAndroid.show('Updated' + response, ToastAndroid.SHORT)
+			}).catch(console.log);
+			this.createPDF(this._data);
+			this.setState({
+				sheet: false
+			});
+			this.props.newSession();
+		} else if (buttonIndex == 3) {
+			var formData = new FormData();
+			formData.append("values", JSON.stringify(this._data))
+			fetch('https://script.google.com/macros/s/AKfycbz1nK4pdiVadO8GhOGLy7Z3OQJLzvHP1kd2nc59o4JL5XN9htgy/exec', {
+				mode: 'no-cors',
+				method: 'post',
+				headers: {
+					'Content-Type': 'multipart/form-data'
+				},
+				body: formData
+			}).then(function(response) {
+
+				ToastAndroid.show('Updated' + response, ToastAndroid.SHORT)
+			}).catch(console.log);
+			this.createPDF(this._data);
+			this.setState({
+				sheet: false
+			});
+			this.props.newSession();
 		}
 	}
-
-	
 
 	componentWillUpdate(nextProps, nextState) {
 		if (nextState.rowToDelete !== null) {
@@ -441,8 +436,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 		this.props.delete(id, amount);
 	}
 
-	_onAfterRemovingElement() {
-	}
+	_onAfterRemovingElement() {}
 
 }
 

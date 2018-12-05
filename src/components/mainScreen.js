@@ -49,64 +49,73 @@ export default class MainScreen extends Component {
 			rate: '',
 			marketrate: '',
 			totalAmt: 0,
-			comments:'',
+			comments: '',
 			pList: [],
 			vList: false,
 			orderList: false,
 			num: 0,
-			allData:[],
-			unit:'kgs',
-			CommentsList:[],
-			bname:'',
-			userid:''
+			allData: [],
+			unit: 'kgs',
+			CommentsList: [],
+			bname: '',
+			userid: ''
 		};
 
 	}
-	
-	componentDidMount(){
+
+	componentDidMount() {
 		let that = this;
-		AsyncStorage.getItem('bname').then((bname)=>{
-			that.setState({bname})
+		AsyncStorage.getItem('bname').then((bname) => {
+			that.setState({
+				bname
+			})
 		})
-		AsyncStorage.getItem('userid').then((userid)=>{
-			that.setState({userid})
+		AsyncStorage.getItem('userid').then((userid) => {
+			that.setState({
+				userid
+			})
 		})
 	}
 
+	getData() {
 
-	getData(){
-		
-	  fetch('https://rawgit.com/classicyamaha/mbooksdata/master/orderprocuredata.json')
-      .then(response => response.json())
-      .then((data) => {
-        this.setState({allData:data})});
+		fetch('https://rawgit.com/classicyamaha/mbooksdata/master/orderprocuredata.json')
+			.then(response => response.json())
+			.then((data) => {
+				this.setState({
+					allData: data
+				})
+			});
 
 	}
-	getCommentsData(){
-		
+	getCommentsData() {
+
 		fetch('https://rawgit.com/classicyamaha/mbooksdata/master/commentsData.json')
-		.then(response => response.json())
-		.then((data) => {
-		  this.setState({CommentsList:data})});
-  
-	  }
+			.then(response => response.json())
+			.then((data) => {
+				this.setState({
+					CommentsList: data
+				})
+			});
+
+	}
 
 	componentWillMount() {
-		
-	
+
 		/*this.getauthLevel();*/
 		/*if(this.state.authLevel=='admin'){*/
 		this.getData();
-		this.timer = setInterval(()=> this.getData(), 100000);/*}
-		else if(this.state.authLevel=='operator'){
-		this.getUserLevelData();
-		this.timeruser = setInterval(()=> this.getUserLevelData(), 100000);}*/
+		this.timer = setInterval(() => this.getData(), 100000);
+		/*}
+				else if(this.state.authLevel=='operator'){
+				this.getUserLevelData();
+				this.timeruser = setInterval(()=> this.getUserLevelData(), 100000);}*/
 		this.getCommentsData();
-		
-		this.timerComments = setInterval(()=> this.getCommentsData(), 100000);
-		
+
+		this.timerComments = setInterval(() => this.getCommentsData(), 100000);
+
 	}
-	componentWillUnmount(){
+	componentWillUnmount() {
 		clearInterval(this.timer);
 		clearInterval(this.timerComments);
 	}
@@ -126,20 +135,20 @@ export default class MainScreen extends Component {
 			totalAmt
 		} = this.state;
 		var today = new Date();
-		var timestamp = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate() + '-' + today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
-	
+		var timestamp = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + '-' + today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
+
 		this.setState((prevState) => {
 			prevState.pList.push({
 				amount: '1',
 				weight: weight,
 				selected: selected,
 				rate: rate,
-				comments:bname,
+				comments: bname,
 				uid: key,
-				unit:unit,
-				marketrate:comments,
-				UserID:userid,
-				timestamp:timestamp
+				unit: unit,
+				marketrate: comments,
+				UserID: userid,
+				timestamp: timestamp
 			});
 			return prevState;
 		});
@@ -149,7 +158,7 @@ export default class MainScreen extends Component {
 			weight: '',
 			rate: '',
 			marketrate: '',
-			unit:'kgs'
+			unit: 'kgs'
 		});
 		ToastAndroid.show('Updated', ToastAndroid.SHORT)
 		Keyboard.dismiss();
@@ -182,10 +191,12 @@ export default class MainScreen extends Component {
 			totalAmt
 
 		} = this.state;
-		this.setState({totalAmt:totalAmt++});
+		this.setState({
+			totalAmt: totalAmt++
+		});
 
-		if(weight >0){
-			rate=parseFloat(1/weight);
+		if (weight > 0) {
+			rate = parseFloat(1 / weight);
 			this.setState({
 				totalAmt
 			});
@@ -195,41 +206,44 @@ export default class MainScreen extends Component {
 					rate
 				},
 				() => this.addtoList());
-			
-		}else {
+
+		} else {
 			ToastAndroid.show('Error! Fill in required quantity!', ToastAndroid.LONG)
 		}
-/*
-		if (amount == '' && weight != '' && rate != '') {
-			let result = parseFloat(weight) * rate;
-			result = result.toFixed(2);
-			amount = "" + result
-		} else if (weight == '' && amount != '' && rate != '') {
-			let result = parseFloat(amount) / rate;
-			result = result.toFixed(2);
-			weight = "" + result
-		} else if (rate == '' && amount != '' && weight != '') {
-			let result = parseFloat(amount) / weight;
-			result = result.toFixed(2);
-			rate = "" + result
-		} else if (selected == "Bhaada" || selected == "Palledari" || selected == "Jalpan") {
-			amount = amount
-			weight = ""
-			rate = ""
-		} else {
-			return Alert.alert('Error', 'Please check the data');
-		}*/
-		
-		
-		
-			
+		/*
+				if (amount == '' && weight != '' && rate != '') {
+					let result = parseFloat(weight) * rate;
+					result = result.toFixed(2);
+					amount = "" + result
+				} else if (weight == '' && amount != '' && rate != '') {
+					let result = parseFloat(amount) / rate;
+					result = result.toFixed(2);
+					weight = "" + result
+				} else if (rate == '' && amount != '' && weight != '') {
+					let result = parseFloat(amount) / weight;
+					result = result.toFixed(2);
+					rate = "" + result
+				} else if (selected == "Bhaada" || selected == "Palledari" || selected == "Jalpan") {
+					amount = amount
+					weight = ""
+					rate = ""
+				} else {
+					return Alert.alert('Error', 'Please check the data');
+				}*/
+
 	}
-	incrementItem=(action)=>{
-		const {weight}=this.state;
-		if(action=="add"){
-			this.setState(prevState => ({ weight: prevState.weight + 1 }));
-		}else if(action=="sub"){
-			this.setState(prevState => ({ weight: prevState.weight - 1 }));
+	incrementItem = (action) => {
+		const {
+			weight
+		} = this.state;
+		if (action == "add") {
+			this.setState(prevState => ({
+				weight: prevState.weight + 1
+			}));
+		} else if (action == "sub") {
+			this.setState(prevState => ({
+				weight: prevState.weight - 1
+			}));
 		}
 	}
 
@@ -255,7 +269,7 @@ export default class MainScreen extends Component {
 			return null;
 		}
 		item = allData.filter((e) => e.label == item)[0];
-	
+
 		return <Card>
 			<CardItem cardBody>
 				<Image source = {{ uri: item.image }} style={style.cardImage} />
@@ -364,7 +378,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 						<Subtitle>Meri Mandi</Subtitle>
 					</Body>
 					<Right>
-						<Button hasText transparent onPress={this.props.onPressLogout}>
+						<Button hasText transparent onPress={this.props.screenProps.onPressLogout}>
 							<Text> <Icon style={{color:'white', fontSize:16}} type="Entypo" name="log-out"/> Logout</Text>
 						</Button>
 					</Right>

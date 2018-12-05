@@ -12,7 +12,6 @@ import {
 	Animated,
 	Dimensions,
 	ToastAndroid,
-	BackHandler,
 	AsyncStorage,
 	Alert,
 	Modal
@@ -32,8 +31,13 @@ import {
 	Footer,
 	Badge,
 	Subtitle,
-	List
+	List,
+	ListItem
 } from 'native-base';
+import {
+	handleBackButton,
+	removeBackButtonHandler
+} from './backButton';
 //import * as firebase from 'firebase';
 
 const window = Dimensions.get('window');
@@ -53,10 +57,9 @@ class DynamicListRow extends Component {
 			toValue: 1,
 			duration: this._defaultTransition
 		}).start()
-
-		BackHandler.addEventListener('hardwareBackPress', () => {
+		handleBackButton(() => {
 			return false
-		});
+		})
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -66,7 +69,9 @@ class DynamicListRow extends Component {
 			this.resetHeight()
 		}
 	}
-
+	componentWillUnmount() {
+		removeBackButtonHandler();
+	}
 	onRemoving(callback) {
 		Animated.timing(this.state._rowHeight, {
 			toValue: 0,
@@ -103,9 +108,10 @@ export default class Order extends Component {
 			rowToDelete: null,
 			sheet: true,
 			orderData: [],
-			modalVisible:false,
+			modalVisible: false,
+			modalData: []
 		};
-		
+
 	}
 
 	componentDidMount() {
@@ -137,10 +143,9 @@ export default class Order extends Component {
 		console.log(this._data);
 	}
 	_renderRow(rowData, sectionID, rowID) {
-	
-		 
+
 		return (
-			
+
 			<DynamicListRow>
                 <View style={styles.rowStyle}>
 				
@@ -158,70 +163,52 @@ export default class Order extends Component {
             </DynamicListRow>
 		);
 	}
-	renderModal(data){
-		return (<Modal visible={this.state.modalVisible} 
-		animationType='fade'onRequestClose={()=>console.log('Modal Closed')}>
-		<View>
-		<Text>Order ID: {data.orderid}</Text>
-		<List dataArray={data}
-            		renderRow={(item) =>
-              <ListItem>
-				<View style={{flexDirection:'column'}}><Left>
-                <Text style={{fontSize:18, alignContent:'flex-start'}}>{item.product_name}  </Text>
-				<Text style={{fontSize:18, alignContent:'flex-start'}}>{item.weight} {item.unit_of_measure}</Text>
-				</Left>
-				</View>
-              </ListItem>
-            }></List>
-		</View>
-		</Modal>);
-	}
 
-	getOrderData(rowData){
-		let that=this;
-		fetch('http://www.merimandi.co.in:3025/api/test/customerorderdata',{
-					method: 'POST',
-					headers: {
-						'Accept': 'application/json',
-						'Content-Type': 'application/json'
-						
-					},
-					body:'{"orderid":"'+rowData.orderid+'"}'
-				}).then(response => response.json())
-				.then((data) => { 
-					that.setState({modalVisible:true})
-					that.renderModal(JSON.stringify(data)
-					);
-				});
+	getOrderData(rowData) {
+		let that = this;
+		fetch('http://www.merimandi.co.in:3025/api/test/customerorderdata', {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+
+				},
+				body: '{"orderid":"' + rowData.orderid + '"}'
+			}).then(response => response.json())
+			.then((data) => {
+				that.setState({
+					modalVisible: true,
+					modalData: data
+				})
+			});
 	}
 
 	readUserData() {
-		let that=this;
-		AsyncStorage.getItem('userid').then((userid)=>{
-			fetch('http://www.merimandi.co.in:3025/api/test/orderdata',{
+		let that = this;
+		AsyncStorage.getItem('userid').then((userid) => {
+			fetch('http://www.merimandi.co.in:3025/api/test/orderdata', {
 					method: 'POST',
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json'
-						
+
 					},
-					body:'{"userid":"'+userid+'"}'
+					body: '{"userid":"' + userid + '"}'
 				}).then(response => response.json())
-				.then((data) => { 
+				.then((data) => {
 					console.log(data)
-					that.dataLoadSuccess({data
+					that.dataLoadSuccess({
+						data
 					});
 				});
-			});
+		});
 
 	}
 
-	
 	render() {
-		
-	
-			return (
-				<Container>
+		let that = this;
+		return (
+			<Container>
 				<Header iosStatusbar="light-content"
 androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 130, 76, 1)"}}>
 					<Body>
@@ -249,12 +236,30 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 						dataSource={this.state.dataSource}
 						renderRow={this._renderRow.bind(this)}
 					/>
+					<Modal visible={this.state.modalVisible}
+						animationType='fade' onRequestClose={()=>
+							that.setState({modalVisible:false})}>
+						<View>
+						<Text>Order ID: {this.state.modalData[0] && this.state.modalData[0].orderid}</Text>
+						<List dataArray={this.state.modalData}
+										renderRow={(item) =>
+								<ListItem>
+								<View style={{flexDirection:'column'}}>
+								<Left>
+									<Text style={{fontSize:18, alignContent:'flex-start'}}>{item.product_name}  </Text>
+								<Text style={{fontSize:18, alignContent:'flex-start'}}>{item.weight} {item.unit_of_measure}</Text>
+								</Left>
+								</View>
+								</ListItem>
+								}></List>
+						</View>
+					</Modal>
 		  </Content>
 			</Container>
-			);
-		}
-	
+		);
 	}
+
+}
 
 const styles = StyleSheet.create({
 	listText: {
@@ -271,13 +276,13 @@ const styles = StyleSheet.create({
 		height: 200,
 		width: null,
 		flex: 1
-	},subText: {
-		paddingHorizontal:10,
-		paddingTop:2,
-		paddingBottom:2,
+	},
+	subText: {
+		paddingHorizontal: 10,
+		paddingTop: 2,
+		paddingBottom: 2,
 		fontSize: 12,
 		fontFamily: "sans-serif",
-		
 
 	},
 	HeaderText: {
@@ -323,7 +328,7 @@ const styles = StyleSheet.create({
 		borderBottomColor: '#ccc',
 		borderBottomWidth: 1,
 		flexDirection: 'row',
-		
+
 	},
 
 	rowStyle: {
@@ -333,7 +338,7 @@ const styles = StyleSheet.create({
 		borderBottomColor: '#ccc',
 		borderBottomWidth: 1,
 		flexDirection: 'row',
-		
+
 	},
 
 	rowIcon: {
@@ -349,14 +354,14 @@ const styles = StyleSheet.create({
 		fontSize: 20
 	},
 	phone: {
-		
+
 		color: '#212121',
 		fontSize: 16
 	},
 	contact: {
-		
-		flexDirection:'row',
-		width: window.width-8,
+
+		flexDirection: 'row',
+		width: window.width - 8,
 		alignSelf: 'flex-start'
 	},
 
