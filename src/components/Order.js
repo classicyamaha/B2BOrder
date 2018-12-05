@@ -38,7 +38,7 @@ import {
 	handleBackButton,
 	removeBackButtonHandler
 } from './backButton';
-import Modal from "react-native-modal";
+import { Dialog } from 'react-native-simple-dialogs';
 //import * as firebase from 'firebase';
 
 const window = Dimensions.get('window');
@@ -237,14 +237,12 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 						dataSource={this.state.dataSource}
 						renderRow={this._renderRow.bind(this)}
 					/>
-					<Modal visible={this.state.modalVisible}
-							backdropColor='black'
-							animationIn='slideInUp'	
-							onBackdropPress={()=>that.setState({modalVisible:false})}
-							 onRequestClose={()=>
-							that.setState({modalVisible:false})}>
-						<ScrollView style={{backgroundColor:'rgba(144, 198, 149, 1)',borderColor:'black', borderWidth:1.0, borderRadius:12}}>
-						<View style={{alignItems:'center', borderBottomColor:'black',borderBottomWidth:1}}><Text style={{fontSize:25}}>Order ID: {this.state.modalData[0] && this.state.modalData[0].orderid}</Text></View>
+					<Dialog visible={this.state.modalVisible}
+							title='Order Details'
+							animationType='slide'	
+							onTouchOutside={()=>that.setState({modalVisible:false})}>
+						<View>
+						<Text style={{fontSize:25}}>Order ID: {this.state.modalData[0] && this.state.modalData[0].orderid}</Text>
 						<List dataArray={this.state.modalData}
 										renderRow={(item) =>
 								<ListItem>
@@ -256,8 +254,8 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 								</View>
 								</ListItem>
 								}></List>
-						</ScrollView>
-					</Modal>
+						</View>
+					</Dialog>
 		  </Content>
 			</Container>
 		);

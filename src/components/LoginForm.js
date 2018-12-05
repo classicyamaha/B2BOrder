@@ -14,15 +14,14 @@ import {
 	Alert,
 	AsyncStorage,
 	ToastAndroid,
-	StatusBar,
-	Modal
+	StatusBar
 } from 'react-native';
 import {
 	KeyboardAwareScrollView
 } from 'react-native-keyboard-aware-scroll-view';
 import SignUpUser from './SignUpUser';
 import ScreenNavigator from './ScreenNavigator';
-
+import { ProgressDialog } from 'react-native-simple-dialogs';
 /*console.disableYellowBox = true;*/
 export default class LoginForm extends Component {
 
@@ -185,11 +184,13 @@ export default class LoginForm extends Component {
 	}
 
 	render() {
-		if (this.state.loading) {
-			return <View style={styles.logoContainer}>
-          <ActivityIndicator style={styles.loading} size="large"/>
-        </View>;
-		}
+		/*if (this.state.loading) {
+			return <ProgressDialog
+			visible={this.state.loading}
+			title="Logging you in"
+			message="Please, wait..."
+		/>;
+		}*/
 		if (this.state.authUser) {
 			return <ScreenNavigator screenProps={{onPressLogout: this.onPressLogout.bind(this)}}/>;
 		} else if (this.state.signup) {
@@ -227,7 +228,11 @@ export default class LoginForm extends Component {
               <Text style={styles.ButtonTextStyle}>Log In</Text></TouchableOpacity>
 			  <TouchableOpacity  onPress={()=> this.onPressSignUp()}><Text style={{fontSize:15,color:'white', fontWeight:'400'}}>New? Sign Up</Text></TouchableOpacity>
 			  </View>
-			
+			  {this.state.loading && <ProgressDialog
+			visible={this.state.loading}
+			title="Logging you in"
+			message="Please, wait..."
+		/>}
       </KeyboardAwareScrollView>;
 		}
 	}

@@ -334,6 +334,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 			});
 			const data = this._data
 			let id = Math.floor(500 + Math.random() * 9000);
+			Alert.alert(JSON.stringify(data))
 			for (var i = 0; i < data.length; i++) {
 				let orderData = '{"amount":"' + data[i].amount + '","weight":"' + data[i].weight + '","selected":"' + data[i].selected + '","rate":' + data[i].rate + ',"comments":"' + data[i].comments + '","uid":"' + data[i].uid + '","unit":"' + data[i].unit + '","marketrate":"' + data[i].marketrate + '","UserID":"' + data[i].UserID + '","timestamp":"' + data[i].timestamp + '","orderid":"' + id + '"}'
 				console.log(orderData)
