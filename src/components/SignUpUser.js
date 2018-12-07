@@ -15,10 +15,12 @@ import {
 	AsyncStorage,
 	ToastAndroid,
 	StatusBar,
-	Icon
+	Dimensions
 } from 'react-native';
 import {
-	Picker
+	Picker,
+	Button,
+	Icon
 } from 'native-base';
 import {
 	KeyboardAwareScrollView
@@ -27,7 +29,7 @@ import {
 import {
 	BackHandler
 } from 'react-native';
-
+const window = Dimensions.get('window');
 export default class SignUpUser extends Component {
 	state = {
 		username: '',
@@ -164,6 +166,8 @@ export default class SignUpUser extends Component {
 				this.setState({
 					CommentsList: data
 				})
+			}).catch((error)=>{
+				ToastAndroid.show('Error! Please check your internet',ToastAndroid.LONG)
 			});
 
 	}
@@ -185,7 +189,7 @@ export default class SignUpUser extends Component {
         <Text style={styles.TextStyle}>MeriMandi Orders</Text>
         <Text style={{fontSize:16, color:'black'}}>Sign Up as Business</Text></View>
         <View style={styles.loginContainer}>
-        <Text style={styles.BasicTextStyle}>Username:</Text> 
+		<Text style={styles.BasicTextStyle}><Icon type="FontAwesome" style={{color:'white',fontSize:18}} name="user"> Username:</Icon></Text>
               <TextInput placeholder="username"
               placeholderTextColor='#FFF'
               autoCapitalize="none"
@@ -194,7 +198,7 @@ export default class SignUpUser extends Component {
               style={styles.TextInputStyle}
               value={this.state.username}
               onChangeText={username => this.setState({username})}/>
-              <Text style={styles.BasicTextStyle}>Email:</Text> 
+              <Text style={styles.BasicTextStyle}><Icon type="MaterialCommunityIcons" style={{color:'white',fontSize:18}} name="email"> Email:</Icon></Text> 
               <TextInput 
               placeholder="email address"
               placeholderTextColor='#FFF'
@@ -203,7 +207,7 @@ export default class SignUpUser extends Component {
               ref={(input)=> this.emailInput=input}
               onSubmitEditing={()=>this.passwordInput.focus()}
               onChangeText={email => this.setState({email})}/>
-              <Text style={styles.BasicTextStyle}>Password:</Text> 
+              <Text style={styles.BasicTextStyle}><Icon type="MaterialCommunityIcons" style={{color:'white',fontSize:18}} name="textbox-password"> Password:</Icon></Text> 
               <TextInput 
               placeholder="password"
               placeholderTextColor='#FFF'
@@ -234,9 +238,9 @@ export default class SignUpUser extends Component {
               onChangeText={obname => this.setState({obname})}/> }
                          
                         
-            <View style={{justifyContent:'flex-end'}}>
-              <TouchableOpacity style={styles.ButtonStyle} onPress={()=> this.validate()}>
-              <Text style={styles.ButtonTextStyle}>Register</Text></TouchableOpacity>
+            <View style={{alignSelf:'center'}}>
+              <Button style={styles.ButtonStyle} onPress={()=> this.validate()}>
+              <Text style={styles.ButtonTextStyle}>Register</Text></Button>
               
 			  </View>
               </View>
@@ -257,20 +261,23 @@ const styles = StyleSheet.create({
 	BasicTextStyle: {
 		textAlign: 'left',
 		fontSize: 18,
-		color: '#000',
-		fontWeight: '400'
+		color: '#FFF',
+		fontWeight: '400',
+		paddingBottom:10
 	},
 	ButtonTextStyle: {
-		textAlign: 'center',
+	
 		color: '#FFF',
 		fontWeight: '700'
 	},
 	ButtonStyle: {
+		justifyContent:'center',
 		backgroundColor: 'rgba(4, 147, 114, 1)',
 		paddingVertical: 15,
 		marginBottom: 10,
 		paddingHorizontal: 10,
-		borderRadius: 10
+		borderRadius: 8,
+		width:window.width-100
 	},
 	TextInputStyle: {
 		height: 40,
@@ -278,7 +285,8 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 		paddingHorizontal: 10,
 		color: '#FFF',
-		borderRadius: 8
+		borderRadius: 8,
+		padding:5
 	},
 	loginContainer: {
 		padding: 20
@@ -301,7 +309,7 @@ const styles = StyleSheet.create({
 	},
 	TextStyle: {
 		fontSize: 25,
-		color: 'rgba(1, 50, 67, 1)',
+		color: 'white',
 
 	}
 });

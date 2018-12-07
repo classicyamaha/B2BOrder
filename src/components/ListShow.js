@@ -13,7 +13,8 @@ import {
 	Dimensions,
 	ToastAndroid,
 	Platform,
-	Alert
+	Alert,
+	TextInput
 } from 'react-native';
 import {
 	Container,
@@ -27,10 +28,13 @@ import {
 	Icon,
 	Text,
 	List,
-	ListItem
+	ListItem,
+	DatePicker,
+	Thumbnail,
 
 } from 'native-base';
 
+import { Dialog } from 'react-native-simple-dialogs';
 import {
 	handleBackButton,
 	removeBackButtonHandler
@@ -40,7 +44,7 @@ const window = Dimensions.get('window');
 
 class DynamicListRow extends Component {
 
-	_defaultHeightValue = 60;
+	_defaultHeightValue = 58;
 	_defaultTransition = 500;
 
 	state = {
@@ -100,11 +104,17 @@ export default class DynamicList extends Component {
 			refreshing: false,
 			rowToDelete: null,
 			sheet: true,
-			num: 0,
-			clicked: 0,
-			authLevel: ''
+			modalVisible:false,
+			rocperson:'',
+			contact:'',
+			chosenDate: new Date()
+			
 		};
+		this.setDate = this.setDate.bind(this);
 	}
+	setDate(newDate) {
+		this.setState({ chosenDate: newDate });
+	  }
 	/*getauthLevel(){
 			
 			
@@ -114,7 +124,7 @@ export default class DynamicList extends Component {
 			  this.setState({authLevel:'admin'});
 			  }else if(result=='operator'){
 			  this.setState({authLevel:'operator'});
-			  }
+			  }s
 		}
 		getUserLevelData(userID){
 			fetch('https://rawgit.com/classicyamaha/mbooksdata/master/userAuthLevel.json')
@@ -191,9 +201,25 @@ export default class DynamicList extends Component {
 		let pdf = await RNHTMLtoPDF.convert(options)
 		ToastAndroid.show('Report saved at:' + pdf.filePath, ToastAndroid.LONG);
 	}
+	addContactDetails(){
+		const {rocperson,contact,chosenDate}=this.state;
+		if(rocperson=='' && contact==''){
+			ToastAndroid.show('Error! Please fill in all details',ToastAndroid.LONG)
+		}else{
+		let data=this._data;
+		this.setState({modalVisible:false});
+		
+		data.forEach((v)=>{
+			
+				v.rocperson=rocperson,
+				v.contact=contact,
+				v.deliverydate=chosenDate
+			
+			  });
+		this.addData(0);}
+	}
 
 	render() {
-
 		if (this.state.sheet) {
 			return (
 
@@ -220,12 +246,57 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 					<Right><Text style={{paddingBottom:20, fontSize:22}}>Total Item:  {this.props.total}</Text>
 				</Right>
 						<Button block danger 
-							onPress={()=> this.addData(0)}>
+							onPress={()=> this.setState({modalVisible:true})} >
 
 							<Text style={styles.addButtonText}>Confirm Order</Text>
 						</Button> 
 					</View>
+					<Dialog visible={this.state.modalVisible}
+							onTouchOutside={()=>this.setState({modalVisible:false})}
+							title= 'Order Confirmation'
+							animationType='slide'	
+							onRequestClose={()=>this.setState({modalVisible:false})}>
+							<View>
+							  <TextInput placeholder="POC Name"
+              placeholderTextColor='#000'
+              autoCapitalize="none"
+              autoCorrect={false}
+              onSubmitEditing={()=>this.passwordInput.focus()}
+              style={styles.TextInputStyle}
+              value={this.state.rocperson}
+              onChangeText={rocperson => this.setState({rocperson})}/>
+              <TextInput 
+              placeholder="Phone Number"
+			  placeholderTextColor='#000'
+			  keyboardType="numeric"
+              ref={(input)=> this.passwordInput=input}
+              style={styles.TextInputStyle}
+              value={this.state.contact}
+              onChangeText={contact => this.setState({contact})}/>
+			<DatePicker
+        
+            minimumDate={new Date(2016, 1, 1)}
+            maximumDate={new Date(2035, 12, 31)}
+            locale={"en"}
+            timeZoneOffsetInMinutes={undefined}
+            modalTransparent={false}
+            animationType={"fade"}
+            androidMode={"default"}
+            placeHolderText="Select Delivery Date"
+            textStyle={{ color: "black" }}
+            placeHolderTextStyle={{ color: "#black" }}
+            onDateChange={this.setDate}
+            />
+			  <View style={{alignSelf:'center'}}>
+              <Button danger onPress={()=> this.addContactDetails()}>
+              <Text style={styles.ButtonTextStyle}>Confirm Order</Text></Button>
+
+				<Text style={{fontSize:10, marginTop:5}}>* Delivery Charge of Rs 29. Conditions Apply </Text>                                                                                                                                                                                                                                                                                                                 
+				</View>
+				</View>		
+			</Dialog>
 					<ListView
+						style={{height:window.height}}
 						refreshControl={
 							<RefreshControl
 							refreshing={this.state.refreshing}
@@ -234,7 +305,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 							title="Loading..."
 							titleColor="#00AEC7"
 							colors={['#FFF', '#FFF', '#FFF']}
-							progressBackgroundColor="#00AEC7"
+							progressBackg  roundColor="#00AEC7"
 
 							/>
 						}
@@ -271,7 +342,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 			<Text style={{paddingBottom:20}}>Your order has reached us, here is your summary</Text> 
 			<Text style={{fontSize:30}}>Order Summary</Text>
 			</View>
-			
+		
 			<List dataArray={this._data}
             		renderRow={(item) =>
               <ListItem>
@@ -328,7 +399,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 
 				ToastAndroid.show('Updated ', ToastAndroid.SHORT)
 			}).catch(console.log);
-			this.createPDF(this._data);
+			
 			this.setState({
 				sheet: false
 			});
@@ -347,7 +418,7 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 			}).catch((error) => {
 				console.log(error);
 			});
-
+			console.log(JSON.stringify({data:this._data}))
 		} else if (buttonIndex == 1) {
 			var formData = new FormData();
 			formData.append("values", JSON.stringify(this._data))
@@ -466,9 +537,9 @@ const styles = StyleSheet.create({
 	rowStyle: {
 		backgroundColor: '#FFF',
 		paddingVertical: 2,
-		paddingHorizontal: 10,
+		paddingHorizontal: 5,
 		borderBottomColor: '#ccc',
-		borderBottomWidth: 1,
+		borderBottomWidth: 1.5,
 		flexDirection: 'row'
 	},
 
@@ -501,7 +572,7 @@ const styles = StyleSheet.create({
 	deleteWrapper: {
 		paddingVertical: 2,
 		width: 80,
-		alignSelf: 'flex-end'
+		alignSelf: 'center'
 	},
 	deleteIcon: {
 		fontSize: 24,

@@ -27,9 +27,8 @@ import {
 	Body,
 	Icon,
 	Text,
-	FooterTab,
-	Footer,
-	Badge,
+	Card,
+	CardItem,
 	Subtitle,
 	List,
 	ListItem
@@ -45,7 +44,7 @@ const window = Dimensions.get('window');
 
 class DynamicListRow extends Component {
 
-	_defaultHeightValue = 60;
+	_defaultHeightValue = 50;
 	_defaultTransition = 500;
 
 	state = {
@@ -148,21 +147,29 @@ export default class Order extends Component {
 		return (
 
 			<DynamicListRow>
-                <View style={styles.rowStyle}>
-				
-                    <View style={styles.contact}>
+					<Container>
+						<Content>
+							<Card>
+					<TouchableOpacity onPress={()=>this.getOrderData(rowData)}>
+					<CardItem>
+						<Left >
 						
-						<View style={{flexDirection:'column'}}>
+						<Icon style={{fontSize:30, color:'green'}} name="ios-arrow-dropright-circle"/>	
+						
                         <Text style={styles.name}>Order ID: {rowData.orderid}</Text>
-                        <Text style={styles.phone}>Dated: {rowData.dateCreated}</Text>
+						</Left>
 						
-					</View>		
-					<Right><TouchableOpacity onPress={()=>this.getOrderData(rowData)}>
-					<Icon style={{fontSize:30, color:'green'}} name="ios-arrow-dropright-circle"/></TouchableOpacity></Right>			
-                    </View>
-                </View>
+						
+						</CardItem>	
+					</TouchableOpacity>
+					</Card>
+					</Content>
+					</Container>
+					
+					
+               
             </DynamicListRow>
-		);
+		); 
 	}
 
 	getOrderData(rowData) {
@@ -181,6 +188,8 @@ export default class Order extends Component {
 					modalVisible: true,
 					modalData: data
 				})
+			}).catch((error) => {
+				ToastAndroid.show('Error! Please check your Internet Connection',ToastAndroid.LONG)
 			});
 	}
 
@@ -217,19 +226,24 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 						<Title>Order History</Title>
 						<Subtitle>Meri Mandi</Subtitle>
 					</Body>
-					
+					<Right>
+						<Button hasText transparent onPress={this._loadData.bind(this, true)}>
+						<Icon style={{color:'white', fontSize:35}} name="ios-refresh"/> 
+						</Button>
+					</Right>
 				</Header>	
 				<Content>
 				<ListView
+						style={{height:window.height}}
 						refreshControl={
 							<RefreshControl
 							refreshing={this.state.refreshing}
 							onRefresh={this._loadData.bind(this, true)}
-							tintColor="#00AEC7"
+							tintColor="green"
 							title="Loading..."
 							titleColor="#00AEC7"
 							colors={['#FFF', '#FFF', '#FFF']}
-							progressBackgroundColor="#00AEC7"
+							progressBackgroundColor="green"
 
 							/>
 						}
@@ -238,24 +252,28 @@ androidStatusBarColor='rgba(30, 130, 76, 1)' style={{backgroundColor:"rgba(30, 1
 						renderRow={this._renderRow.bind(this)}
 					/>
 					<Dialog visible={this.state.modalVisible}
-							title='Order Details'
+							
+							title= 'Order Details'
 							animationType='slide'	
 							onTouchOutside={()=>that.setState({modalVisible:false})}
 							onRequestClose={()=>that.setState({modalVisible:false})}>
-						<View>
-						<Text style={{fontSize:25}}>Order ID: {this.state.modalData[0] && this.state.modalData[0].orderid}</Text>
-						<List dataArray={this.state.modalData}
+						<ScrollView>
+							<View  style={{flexDirection:'row', alignItems:'center'}}>
+						<Icon style= {{fontSize:30, color:'green', padding:10}} name="ios-paper"/>
+						<Text style={{fontSize:16, fontWeight:'500'}}>Order ID: {this.state.modalData[0] && this.state.modalData[0].orderid} </Text>
+
+						</View><List dataArray={this.state.modalData}
 										renderRow={(item) =>
 								<ListItem>
-								<View style={{flexDirection:'column'}}>
-								<Left>
-									<Text style={{fontSize:18, alignContent:'flex-start'}}>{item.product_name}  </Text>
-								<Text style={{fontSize:18, alignContent:'flex-start'}}>{item.weight} {item.unit_of_measure}</Text>
-								</Left>
+								<View style={{flexDirection:'row'}}>
+								
+								<Text style={{fontSize:16, fontWeight:'500'}}>{item.product_name} --  </Text>
+								<Text style={{fontSize:16}}>{item.weight} {item.unit_of_measure}</Text>
+								
 								</View>
 								</ListItem>
 								}></List>
-						</View>
+						</ScrollView>
 					</Dialog>
 		  </Content>
 			</Container>
@@ -336,7 +354,6 @@ const styles = StyleSheet.create({
 
 	rowStyle: {
 		backgroundColor: '#FFF',
-		paddingVertical: 2,
 		paddingHorizontal: 5,
 		borderBottomColor: '#ccc',
 		borderBottomWidth: 1,
@@ -362,10 +379,11 @@ const styles = StyleSheet.create({
 		fontSize: 16
 	},
 	contact: {
-
+		borderBottomColor:'#ccc',
+		borderBottomWidth:1.0,
 		flexDirection: 'row',
-		width: window.width - 8,
-		alignSelf: 'flex-start'
+		alignItems:'center',
+		paddingHorizontal:10
 	},
 
 	dateText: {

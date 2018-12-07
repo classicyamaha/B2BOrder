@@ -8,14 +8,15 @@ import {
 	View,
 	Image,
 	TextInput,
-	TouchableOpacity,
-	KeyboardAvoidingView,
+	TouchableOpacity,ImageBackground,
 	ActivityIndicator,
 	Alert,
 	AsyncStorage,
 	ToastAndroid,
-	StatusBar
+	StatusBar,
+	Dimensions
 } from 'react-native';
+import {Button} from 'native-base';
 import {
 	KeyboardAwareScrollView
 } from 'react-native-keyboard-aware-scroll-view';
@@ -23,6 +24,7 @@ import SignUpUser from './SignUpUser';
 import ScreenNavigator from './ScreenNavigator';
 import { ProgressDialog } from 'react-native-simple-dialogs';
 /*console.disableYellowBox = true;*/
+const window = Dimensions.get('window');
 export default class LoginForm extends Component {
 
 	state = {
@@ -73,8 +75,9 @@ export default class LoginForm extends Component {
 				});
 			}
 			console.log(userToken)
-		}).catch(console.error);
-
+		}).catch((error) => {
+			ToastAndroid.show('Error! Please check your Internet Connection',ToastAndroid.LONG)
+		});
 	}
 
 	/*		
@@ -196,12 +199,14 @@ export default class LoginForm extends Component {
 		} else if (this.state.signup) {
 			return <SignUpUser onSignup={this.onSignup.bind(this)}/>;
 		} else {
-			return <KeyboardAwareScrollView style={styles.container}>
+			return 	<ImageBackground resizeMode="cover" source={require('../images/bg-image.png')} style={styles.backgroundContainer}>
+			<KeyboardAwareScrollView>
         <View style={styles.logoContainer}>
 		<StatusBar
-     backgroundColor="rgba(42, 187, 155, 1)"
+     backgroundColor="white"
      barStyle="light-content"
    />
+   
         <Image 
         style={styles.logoStyle}
         source={require('../images/logo.png')}/>
@@ -223,38 +228,32 @@ export default class LoginForm extends Component {
               style={styles.TextInputStyle}
               value={this.state.password}
               onChangeText={password => this.setState({password})}/>
-			  
-              <TouchableOpacity style={styles.ButtonStyle} onPress={()=> this.onPressSignIn()}>
-              <Text style={styles.ButtonTextStyle}>Log In</Text></TouchableOpacity>
-			  <TouchableOpacity  onPress={()=> this.onPressSignUp()}><Text style={{fontSize:15,color:'white', fontWeight:'400'}}>New? Sign Up</Text></TouchableOpacity>
-			  </View>
+			  <View style={{alignSelf:'center'}}>
+              <Button style={styles.ButtonStyle} onPress={()=> this.onPressSignIn()}>
+              <Text style={styles.ButtonTextStyle}>Log In</Text></Button>
+			   </View><TouchableOpacity  onPress={()=> this.onPressSignUp()}><Text style={{fontSize:15,color:'rgba(22, 160, 133, 1)', fontWeight:'600'}}>New? Sign Up</Text></TouchableOpacity>
+			 </View>
 			  {this.state.loading && <ProgressDialog
 			visible={this.state.loading}
 			title="Logging you in"
 			message="Please, wait..."
 		/>}
-      </KeyboardAwareScrollView>;
+      </KeyboardAwareScrollView>
+	  </ImageBackground>;
 		}
 	}
 }
 
 const styles = StyleSheet.create({
-	loading: {
-		position: 'absolute',
-		left: 0,
-		right: 0,
-		top: 0,
-		bottom: 0,
-		alignItems: 'center',
-		justifyContent: 'center'
-	},
+	
 	ButtonTextStyle: {
-		textAlign: 'center',
 		color: '#FFF',
 		fontWeight: '700'
 	},
 	ButtonStyle: {
-		backgroundColor: 'rgba(4, 147, 114, 1)',
+		justifyContent:'center',
+		width:window.width-100,
+		backgroundColor: 'rgba(0, 230, 64, 1)',
 		paddingVertical: 15,
 		marginBottom: 10,
 		paddingHorizontal: 10,
@@ -262,21 +261,27 @@ const styles = StyleSheet.create({
 	},
 	TextInputStyle: {
 		height: 40,
-		backgroundColor: 'rgba(22, 160, 133, 1)',
+		backgroundColor: 'rgba(22, 160, 133, 0.6)',
 		marginBottom: 20,
 		paddingHorizontal: 10,
 		borderRadius: 10,
 		color: '#FFF'
 	},
 	loginContainer: {
-		padding: 20
+		paddingTop:15,
+		width:window.width-20,
+		padding: 10,
+		backgroundColor: 'rgba(255, 255, 255, 0.65)',
+		borderRadius:10,
+		
 	},
 	container: {
 		flex: 1,
-		backgroundColor: 'rgba(42, 187, 155, 1)',
+		backgroundColor: 'rgba(162, 222, 208, 1)',
+		
 	},
 	logoContainer: {
-		justifyContent: 'center',
+		
 		alignItems: 'center',
 		flexGrow: 1,
 		height: 250,
@@ -293,5 +298,13 @@ const styles = StyleSheet.create({
 		fontSize: 25,
 		color: 'rgba(1, 50, 67, 1)',
 
+	},
+	backgroundContainer: {
+		flex: 1,
+		flexDirection: 'column',
+		height: null,
+		width: null,
+		justifyContent: 'center',
+		alignItems: 'center'
 	}
 });

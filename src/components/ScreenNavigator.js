@@ -39,10 +39,13 @@ export default createBottomTabNavigator({
 	tabBarOptions: {
 		activeTintColor: 'white',
 		inactiveTintColor: 'rgba(104, 195, 163, 1)',
+		pressColor:'white',
+	
+
 		style: {
 			backgroundColor: 'rgba(30, 130, 76, 1)',
 			borderTopWidth: 0,
-			elevation: 5
+			elevation: 10
 		}
 	}
 });
